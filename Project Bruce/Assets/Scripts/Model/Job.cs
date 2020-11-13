@@ -16,8 +16,10 @@ namespace Bruce
         {
             this.name = name;
             OnExecute += onExecute;
+            LifeStages = new List<PopLifeStage>();
         }
 
+        public List<PopLifeStage> LifeStages;
         public string name;
         public Action<Pop, Settlement> OnExecute;
 
@@ -26,36 +28,5 @@ namespace Bruce
             OnExecute(pop,settlement);
         }
 
-    }
-
-    public class JobFactory
-    {
-        static JobFactory()
-        {
-        }
-        
-        public static Job GetWood
-        {
-            get 
-            {
-                return new Job("Get Wood",GetWoodOnExecute);
-            }
-        }
-        public static Job GetFood
-        {
-            get
-            {
-                return new Job("Get Food",GetFoodOnExecute);
-            }
-        }
-
-        public static void GetWoodOnExecute(Pop pop, Settlement settlement)
-        {
-            settlement.Stockpile.AddResource(GameIndex.Wood, 1);
-        }
-        public static void GetFoodOnExecute(Pop pop, Settlement settlement)
-        {
-            settlement.Stockpile.AddResource(GameIndex.Apple, 1);
-        }
     }
 }

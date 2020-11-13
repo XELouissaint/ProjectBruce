@@ -16,6 +16,7 @@ namespace Bruce
         }
 
         public HashSet<Pop> Pops;
+        public Action<Pop> OnPopAdded;
 
         public Population superPop;
         public HashSet<Population> subPops;
@@ -25,9 +26,10 @@ namespace Bruce
             for (int i = 0; i < size; i++)
             {
                 int age = World.RNG.Next(minAge, maxAge);
-                PopGender gender = (PopGender)World.RNG.Next(2);
-                Pop pop = new Pop(gender, age);
+
+                Pop pop = PopFactory.RandomPop(age);
                 Pops.Add(pop);
+                OnPopAdded?.Invoke(pop);
             }
         }
 
@@ -44,28 +46,10 @@ namespace Bruce
             }
             Pops = new HashSet<Pop>(newPopulation);
         }
-    }
 
-    public enum PopGender { Male, Female }
-    public class Pop
-    {
-        public Pop()
+        public void RegisterOnPopAdded(Action<Pop> callback)
         {
-            ID = GameIndex.PopIDCounter++;
-            name = ID.ToString();
+            OnPopAdded += callback;
         }
-
-        public Pop(PopGender gender, int age) : this()
-        {
-            this.gender = gender;
-            this.age = age;
-        }
-
-        int ID;
-        public PopGender gender;
-        public string name;
-        public double age;
-
-
     }
 }

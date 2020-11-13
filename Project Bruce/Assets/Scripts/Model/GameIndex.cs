@@ -4,21 +4,23 @@ using UnityEngine;
 
 namespace Bruce
 {
+    
+
     public static class GameIndex
     {
         public static int PopIDCounter;
 
-        public static Cultivar None = new Cultivar("none", 0f);
 
         public static string Commerce = "commerce";
 
         public static string OakTree = "oak tree";
         public static string AppleTree = "apple tree";
-
-        public static Cultivar Apple = new Cultivar("apple", .1f);
-
+        public static Cultivar None = new Cultivar("none", 0f);
+        public static Cultivar Fruit = new Cultivar("fruit", .1f);
         public static Wood Wood = new Wood("wood", 1f);
         public static Water Water = new Water("water");
+        public static Stone Stone = new Stone("stone");
+        public static Clay Clay = new Clay("clay");
 
         public static int WorkingAge = 8;
 
@@ -26,6 +28,11 @@ namespace Bruce
     }
 
     public interface Resource
+    {
+        string name { get; set; }
+    }
+
+    public interface Stat
     {
         string name { get; set; }
     }
@@ -60,4 +67,89 @@ namespace Bruce
 
         public string name { get; set; }
     }
+
+    public class Stone : Resource
+    {
+        public Stone (string name)
+        {
+            this.name = name;
+        }
+
+        public string name { get; set; }
+    }
+    public class Clay : Resource
+    {
+        public Clay(string name)
+        {
+            this.name = name;
+        }
+
+        public string name { get; set; }
+    }
+
+    public class Strength : Stat
+    {
+        public Strength(string name)
+        {
+            this.name = name;
+        }
+
+        public string name { get; set; }
+    }
+
+    #region LimitList
+    public class LimitList<T> : IEnumerable<T> where T : Pop
+    {
+        public LimitList(int length)
+        {
+            Length = length;
+            list = new List<T>();
+        }
+        List<T> list;
+        public int Length;
+        public T this[int index]
+        {
+            get
+            {
+                return this.list[index];
+            }
+            set
+            {
+                this.list.Insert(index, value);
+            }
+        }
+        public int Count
+        {
+            get
+            {
+                return list.Count;
+            }
+        }
+        public bool Add(T pop)
+        {
+            if (list.Count >= Length)
+            {
+                return false;
+            }
+
+            list.Add(pop);
+            return true;
+        }
+
+        public bool Remove(T pop)
+        {
+            return list.Remove(pop);
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this.list.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+    }
+    #endregion
 }

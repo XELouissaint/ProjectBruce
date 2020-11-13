@@ -40,7 +40,7 @@ namespace Bruce
             {
                 if (apple == null)
                 {
-                    apple = new TreeBreed(GameIndex.Apple, GameIndex.AppleTree, 8, 42);
+                    apple = new TreeBreed(GameIndex.Fruit, GameIndex.AppleTree, 8, 42);
                 }
 
                 return apple;

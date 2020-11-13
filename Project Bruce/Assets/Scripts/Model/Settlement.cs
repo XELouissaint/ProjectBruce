@@ -19,6 +19,9 @@ namespace Bruce
             Stockpile = new Stockpile();
             JobManager = new SettlementJobManager(this);
 
+            Population.RegisterOnPopAdded(OnPopAdded);
+
+
             Territory.Add(hex);
 
             if (country.Settlements.Count == 0)
@@ -45,6 +48,13 @@ namespace Bruce
                 JobManager.OnJobAdded(job);
             }
         }
+
+        public void AddTerritory(Hex hex)
+        {
+            Territory.Add(hex);
+            hex.Owner = this.country;
+            Debug.Log("Set Territory");
+        }
         public void RefreshPopulation()
         {
             Debug.Log("Settlement Refresh");
@@ -57,68 +67,114 @@ namespace Bruce
             JobManager.ExecuteJobs();
         }
 
-
-
-        public class SettlementJobManager
+        public void OnPopAdded(Pop pop)
         {
-            public SettlementJobManager(Settlement settlement)
-            {
-                Settlement = settlement;
-                JobDictionary = new Dictionary<Job, List<Pop>>();
+            for (int i = 0; i < 100; i++)
+            {                
+                if(JobManager.AssignPopToUnWorkedJob(pop))
+                {
+                    return;
+                }
             }
+            
+            var jobDict = JobManager.JobDictionary;
 
-            public Dictionary<Job, List<Pop>> JobDictionary;
-
-            public Settlement Settlement;
-
-            public void OnJobAdded(Job job)
+            for (int i = 0; i < 100; i++)
             {
-                if (JobDictionary.ContainsKey(job))
+                int rand = World.RNG.Next(0, jobDict.Keys.Count);
+
+                Job randJob = jobDict.ElementAt(rand).Key;
+
+
+                if(JobManager.AddPopToJob(randJob, pop))
                 {
                     return;
                 }
 
-                JobDictionary[job] = new List<Pop>();
             }
 
-            public void AddPopToJob(Job job, Pop pop)
-            {
-                JobDictionary[job].Add(pop);
-            }
+        }        
+    }
+    public class SettlementJobManager
+    {
+        public SettlementJobManager(Settlement settlement)
+        {
+            Settlement = settlement;
+            JobDictionary = new Dictionary<Job, LimitList<Pop>>();
+        }
 
-            public void RemovePopToJob(Job job, Pop pop)
-            {
-                JobDictionary[job].Remove(pop);
-            }
+        public Dictionary<Job, LimitList<Pop>> JobDictionary;
+        public Dictionary<Job, int> MaxWorkersPerJob;
+        public Settlement Settlement;
 
-            public void ExecuteJobs()
+        public bool JobsUnWorked()
+        {
+            bool value = false;
+
+            foreach (Job job in JobDictionary.Keys)
             {
-                foreach (Job job in JobDictionary.Keys)
+                if(JobDictionary[job].Count == 0)
                 {
-                    foreach (Pop pop in JobDictionary[job])
-                    {
-                        job.Execute(pop, Settlement);
-                    }
+                    return true;
+                }
+            }
+
+            return value;
+        }
+
+        public void OnJobAdded(Job job)
+        {
+            if (JobDictionary.ContainsKey(job))
+            {
+                return;
+            }
+
+            JobDictionary[job] = new LimitList<Pop>(5);
+        }
+
+        public bool AddPopToJob(Job job, Pop pop)
+        {
+            bool result = JobDictionary[job].Add(pop);
+            foreach (Job key in JobDictionary.Keys)
+            {
+                if (JobDictionary[key].Contains(pop) && result == false)
+                {
+                    RemovePopFromJob(key, pop);
+                }
+            }
+            return result;
+        }
+
+        public bool RemovePopFromJob(Job job, Pop pop)
+        {
+            return JobDictionary[job].Remove(pop);
+        }
+
+        public void ExecuteJobs()
+        {
+            foreach (Job job in JobDictionary.Keys)
+            {
+                foreach (Pop pop in JobDictionary[job])
+                {
+                    job.Execute(pop, Settlement);
                 }
             }
         }
-    }
-    public class SettlementModifier : Modifier
-    {
-        public SettlementModifier(Settlement settlement)
-        {
-            this.settlement = settlement;
-        }
-        Settlement settlement;
 
-        void MudHutOnTriggered()
+        public bool AssignPopToUnWorkedJob(Pop pop)
         {
-            settlement.Housing++;
-        }
+            foreach (Job job in JobDictionary.Keys)
+            {
+                Debug.Log("Count: " + JobDictionary[job].Count);
+                if (JobDictionary[job].Count == 0)
+                {
+                   bool add = AddPopToJob(job, pop);
 
-        void MudHutOnRemoved()
-        {
-            settlement.Housing--;
+                    return add;
+                }
+            }
+
+            return false;
         }
     }
 }
