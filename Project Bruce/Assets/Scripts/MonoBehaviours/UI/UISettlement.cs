@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,14 +7,17 @@ using Bruce;
 public class UISettlement : UI
 {
 
-    public void Initialize(Settlement settlement)
+    public override void Initialize(Action SetterCallback)
     {
-        base.Initialize();
-        SelectedSettlement = settlement;
-        var resourceDictionary = settlement.Stockpile.Resources;
+        base.Initialize(SetterCallback);
+        if(SelectedSettlement == null)
+        {
+            return;
+        }
+        var resourceDictionary = SelectedSettlement.Stockpile.Resources;
         int housing = 0;
 
-        foreach (Building building in settlement.Buildings)
+        foreach (Building building in SelectedSettlement.Buildings)
         {
             MenuCountObject buildingMenuObject = Instantiate(MenuObjectPrefab, BuildingHolder);
             buildingMenuObject.ObjectText.text = string.Format(building.name);
@@ -37,7 +41,7 @@ public class UISettlement : UI
             Prefabs.Add(resourceMenuObject.gameObject);
         }
 
-        var jobDict = settlement.JobManager.JobDictionary;
+        var jobDict = SelectedSettlement.JobManager.JobDictionary;
         foreach(Job job in jobDict.Keys)
         {
             MenuCountObject jobMenuObject = Instantiate(MenuObjectPrefab, JobHolder);

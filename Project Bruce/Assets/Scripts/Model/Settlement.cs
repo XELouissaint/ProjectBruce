@@ -6,21 +6,21 @@ using UnityEngine;
 
 namespace Bruce
 {
-    public class Settlement
+    public class Settlement : IPopulationContainer
     {
         public Settlement(Country country, Hex hex)
         {
             this.country = country;
             this.hex = hex;
             hex.SetSettlement(this);
-            Population = new Population(country.Population);
+            Population = new Population(this, country.Population);
             Buildings = new List<Building>();
             Territory = new List<Hex>();
             Stockpile = new Stockpile();
             JobManager = new SettlementJobManager(this);
 
             Population.RegisterOnPopAdded(OnPopAdded);
-
+            Population.RegisterOnPopRemoved(OnPopRemoved);
 
             Territory.Add(hex);
 
@@ -33,7 +33,7 @@ namespace Bruce
 
         public int Housing;
         public Country country;
-        public Population Population;
+        public Population Population { get; set; }
         public List<Building> Buildings;
         public List<Hex> Territory;
         public Stockpile Stockpile;
@@ -43,9 +43,10 @@ namespace Bruce
         {
             Buildings.Add(building);
 
-            foreach(Job job in building.JobsProvided)
+            foreach(Job job in building.JobsProvided.Keys)
             {
                 JobManager.OnJobAdded(job);
+                JobManager.SetJobListLength(job,building.JobsProvided[job]);
             }
         }
 
@@ -55,10 +56,21 @@ namespace Bruce
             hex.Owner = this.country;
             Debug.Log("Set Territory");
         }
+
+        public void AddPop()
+        {
+
+        }
+
+        public void RemovePop(Pop pop)
+        {
+            Debug.Log("RemovePop");
+            Population.RemovePop(pop);
+            JobManager.RemovePop(pop);
+        }
+
         public void RefreshPopulation()
         {
-            Debug.Log("Settlement Refresh");
-
             Population.RefreshPopulation();
         }
 
@@ -69,6 +81,7 @@ namespace Bruce
 
         public void OnPopAdded(Pop pop)
         {
+            RefreshPopulation();
             for (int i = 0; i < 100; i++)
             {                
                 if(JobManager.AssignPopToUnWorkedJob(pop))
@@ -93,88 +106,12 @@ namespace Bruce
 
             }
 
-        }        
-    }
-    public class SettlementJobManager
-    {
-        public SettlementJobManager(Settlement settlement)
-        {
-            Settlement = settlement;
-            JobDictionary = new Dictionary<Job, LimitList<Pop>>();
         }
 
-        public Dictionary<Job, LimitList<Pop>> JobDictionary;
-        public Dictionary<Job, int> MaxWorkersPerJob;
-        public Settlement Settlement;
-
-        public bool JobsUnWorked()
+        void OnPopRemoved(Pop pop)
         {
-            bool value = false;
-
-            foreach (Job job in JobDictionary.Keys)
-            {
-                if(JobDictionary[job].Count == 0)
-                {
-                    return true;
-                }
-            }
-
-            return value;
-        }
-
-        public void OnJobAdded(Job job)
-        {
-            if (JobDictionary.ContainsKey(job))
-            {
-                return;
-            }
-
-            JobDictionary[job] = new LimitList<Pop>(5);
-        }
-
-        public bool AddPopToJob(Job job, Pop pop)
-        {
-            bool result = JobDictionary[job].Add(pop);
-            foreach (Job key in JobDictionary.Keys)
-            {
-                if (JobDictionary[key].Contains(pop) && result == false)
-                {
-                    RemovePopFromJob(key, pop);
-                }
-            }
-            return result;
-        }
-
-        public bool RemovePopFromJob(Job job, Pop pop)
-        {
-            return JobDictionary[job].Remove(pop);
-        }
-
-        public void ExecuteJobs()
-        {
-            foreach (Job job in JobDictionary.Keys)
-            {
-                foreach (Pop pop in JobDictionary[job])
-                {
-                    job.Execute(pop, Settlement);
-                }
-            }
-        }
-
-        public bool AssignPopToUnWorkedJob(Pop pop)
-        {
-            foreach (Job job in JobDictionary.Keys)
-            {
-                Debug.Log("Count: " + JobDictionary[job].Count);
-                if (JobDictionary[job].Count == 0)
-                {
-                   bool add = AddPopToJob(job, pop);
-
-                    return add;
-                }
-            }
-
-            return false;
+            RefreshPopulation();
         }
     }
+    
 }

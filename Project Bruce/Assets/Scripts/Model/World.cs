@@ -55,8 +55,8 @@ namespace Bruce
                 settlement.Population.GenerateRandomPopulation(10);
 
                 country.AddSettlement(settlement);
+                country.RefreshPopulation();
                 settlement.RefreshPopulation();
-
 
                 Countries.Add(country);
                 ActiveCountries.Add(country);

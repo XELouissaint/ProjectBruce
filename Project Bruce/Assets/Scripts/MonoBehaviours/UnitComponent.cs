@@ -5,20 +5,26 @@ using Bruce;
 
 public class UnitComponent : MonoBehaviour
 {
-    public Unit Unit;
+    public MapUnit Unit;
 
-    bool moved = false;
+    bool hasMoved = false;
 
     public float speed = 4;
     public Vector3 newPosition;
+    public Vector3 oldPosition;
+    public string currentHex;
     private void Start()
     {
         newPosition = transform.position;
+        oldPosition = transform.position;
     }
 
     private void Update()
     {
-        if (moved)
+        currentHex = Unit != null ? string.Format("{0},{1}", Unit.CurrentHex.gridX, Unit.CurrentHex.gridZ) : string.Empty;
+
+
+        if (hasMoved)
         {
             transform.position = Vector3.Lerp(this.transform.position, newPosition, speed * Time.deltaTime);
         }
@@ -26,13 +32,14 @@ public class UnitComponent : MonoBehaviour
         if(Vector3.Distance(transform.position,newPosition) <= .1)
         {
             transform.position = newPosition;
-            moved = false;
+            hasMoved = false;
         }
     }
 
-    public void MoveToHex(Hex hex)
+    public void BeginMoveToHex(Hex hex)
     {
         newPosition = hex.Position;
-        moved = true;
+        Debug.Log("New Position");
+        hasMoved = true;
     }
 }

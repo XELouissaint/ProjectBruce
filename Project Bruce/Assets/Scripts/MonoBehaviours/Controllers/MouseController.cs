@@ -22,7 +22,7 @@ public class MouseController : MonoBehaviour
         Instance = this;
         mouseMode = MouseMode.Select;
     }
-    public GameObject HoverObject;
+    public GameObject SelectedObject;
     private void Update()
     {
 
@@ -34,15 +34,38 @@ public class MouseController : MonoBehaviour
 
             if (Physics.Raycast(ray, out hitInfo))
             {
-                HoverObject = hitInfo.collider.gameObject;
                 switch (mouseMode)
                 {
                     case MouseMode.Select:
                         SelectSettlement(hitInfo);
+                        SelectUnit(hitInfo);
                         break;
                     case MouseMode.ExpandTerritory:
                         SelectHexToExpand(hitInfo);
                         break;
+                }
+            }
+        }
+
+        if (Input.GetMouseButtonDown(1) && EventSystem.current.IsPointerOverGameObject() == false)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+            if (Physics.Raycast(ray, out hitInfo))
+            {
+                if(SelectedObject != null)
+                {
+                    if(SelectedObject.GetComponentInParent<UnitComponent>() != null)
+                    {
+                        UnitComponent unitComp = SelectedObject.GetComponentInParent<UnitComponent>();
+                        if(hitInfo.collider.gameObject.GetComponentInParent<HexComponent>() != null)
+                        {
+                            HexComponent destHexComp = hitInfo.collider.gameObject.GetComponentInParent<HexComponent>();
+
+                            unitComp.Unit.FindPath(destHexComp.Hex);
+
+                        }
+                    }
                 }
             }
         }
@@ -54,10 +77,23 @@ public class MouseController : MonoBehaviour
         {
             HexComponent hexComp = hitInfo.collider.gameObject.GetComponentInParent<HexComponent>();
 
-            if(hexComp.Hex.Settlement != null)
+            if (hexComp.Hex.Settlement != null)
             {
                 UI.SelectedSettlement = hexComp.Hex.Settlement;
+                SelectedObject = hitInfo.collider.gameObject;
+
             }
+        }
+    }
+    void SelectUnit(RaycastHit hitInfo)
+    {
+        if (hitInfo.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
+        {
+            UnitComponent unitComp = hitInfo.collider.gameObject.GetComponentInParent<UnitComponent>();
+            UI.SelectedUnit = unitComp.Unit;
+            SelectedObject = hitInfo.collider.gameObject;
+
+
         }
     }
 
@@ -81,6 +117,7 @@ public class MouseController : MonoBehaviour
     {
         mouseMode = MouseMode.ExpandTerritory;
         mapController.SetMapMode(1);
+        SelectedObject = null;
         UI.SelectedSettlement = settlement;
 
         foreach(Hex hexInTerritory in settlement.Territory)

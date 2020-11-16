@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Bruce;
 public class WorldController : MonoBehaviour
 {
@@ -20,46 +21,65 @@ public class WorldController : MonoBehaviour
 
         currentMap = new Map();
         world = new World(currentMap);
+        playerCountry = world.Countries.First();
         currentMap = world.Map;
         mapController.Init();
         unitController.Init();
         mapController.GenerateMapGraphics(currentMap);
 
-        world.Countries.First().RefreshPopulation();
-        UIController.Instance.UIPopulation.Initialize(world.Countries.First().Settlements.First().Population);
-        UIController.Instance.UISettlement.Initialize(world.Countries.First().Settlements.First());
+        playerCountry.RefreshPopulation();
+
+        Action populationSetter = () => { UI.SelectedPopulation = playerCountry.Population; };
+        UIController.Instance.UIPopulation.Initialize(populationSetter);
 
 
-        Debug.Log(string.Format("{0},{1}", world.Countries.First().Settlements.First().hex.gridX, world.Countries.First().Settlements.First().hex.gridZ));
+        Action settlementSetter = () => { UI.SelectedSettlement = playerCountry.Settlements.First(); };
+        UIController.Instance.UISettlement.Initialize(settlementSetter);
+
+        CreateUnitButton.onClick.AddListener(() => { CreateUnit(); });
+
+        Debug.Log(string.Format("{0},{1}", playerCountry.Settlements.First().hex.gridX, playerCountry.Settlements.First().hex.gridZ));
     }
-    Unit unit;
     bool assigned = false;
+
+    public void CreateUnit()
+    {
+        int rand = 0;
+
+        Pop selected = playerCountry.Settlements.First().Population.Pops.ToList()[rand];
+
+        playerCountry.UnitManager.CreateUnitFromPop(selected, playerCountry.Settlements.First().hex);
+    }
 
     private void Update()
     {
+        if(UI.SelectedUnit != null)
+        {
+            Debug.Log("Selected Unit");
+        }
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (!assigned)
             {
                 Settlement settlement = world.Countries.First().Settlements.First();
 
-                Pop randomPop = settlement.Population.Pops.ToList()[World.RNG.Next(settlement.Population.Pops.Count)];
-                settlement.JobManager.AddPopToJob(settlement.JobManager.JobDictionary.Keys.First(), randomPop);
-
-                assigned = true;
             }
 
             world.Tick();
 
-            UIController.Instance.UISettlement.Initialize(world.Countries.First().Settlements.First());
+            Action settlementSetter = () => { UI.SelectedSettlement = playerCountry.Settlements.First(); };
+            UIController.Instance.UISettlement.Initialize(settlementSetter);
 
         }
     }
 
     public Map currentMap;
+    public Country playerCountry;
+    public Button CreateUnitButton;
 
     public MapController mapController;
     public UnitController unitController;
     public World world;
     public static WorldController Instance;
+
 }

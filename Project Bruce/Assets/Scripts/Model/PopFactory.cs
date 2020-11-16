@@ -13,7 +13,7 @@ namespace Bruce
 
         public static string[] namesFemale = new string[]
         {
-            "Emily","Hannah","Madison","Ashley","Sarah","Alexis","Samantha","Jessica","Elizabeth","Taylor",
+            "Emily","Hannah","Matilda","Fatima","Sarah","Alexis","Samantha","Jessica","Eileen","Taylor",
         };
 
         public static Pop NewMale(int age)

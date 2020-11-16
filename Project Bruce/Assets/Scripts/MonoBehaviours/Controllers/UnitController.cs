@@ -16,14 +16,14 @@ public class UnitController : MonoBehaviour
     public void Init()
     {
         
-        UnitToComponentDictionary = new Dictionary<Unit, UnitComponent>();
+        UnitToComponentDictionary = new Dictionary<MapUnit, UnitComponent>();
     }
 
     public static UnitController Instance;
 
-    Dictionary<Unit, UnitComponent> UnitToComponentDictionary;
+    Dictionary<MapUnit, UnitComponent> UnitToComponentDictionary;
     public UnitComponent UnitPrefab;
-    public void OnUnitCreated(Unit unit)
+    public void OnUnitCreated(MapUnit unit)
     {
         unit.RegisterOnMoved(OnUnitMoved);
         Debug.Log("OnUnitCreated");
@@ -36,6 +36,7 @@ public class UnitController : MonoBehaviour
         {
             UnitComponent unitComp = Instantiate(UnitPrefab, this.transform);
             unitComp.transform.localPosition = unit.CurrentHex.Position;
+            unitComp.Unit = unit;
             UnitToComponentDictionary[unit] = unitComp;
         }
         else
@@ -44,20 +45,21 @@ public class UnitController : MonoBehaviour
         }
     }
 
-    void OnUnitMoving(Unit unit)
+    void OnUnitMoving(MapUnit unit)
     {
 
     }
 
-    void OnUnitMoved(Unit unit)
+    void OnUnitMoved(MapUnit unit)
     {
+        Debug.Log("MOVE");
         if (UnitToComponentDictionary.ContainsKey(unit) == false)
         {
             OnUnitCreated(unit);
         }
         else
         {
-            UnitToComponentDictionary[unit].MoveToHex(unit.CurrentHex);
+            UnitToComponentDictionary[unit].BeginMoveToHex(unit.CurrentHex);
         }
     }
 }

@@ -1,27 +1,42 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Bruce;
 
 public class UIPopulation : UI
 {
-    public  void Initialize(Population population)
+    public override void Initialize(Action SetterCallback)
     {
-        base.Initialize();
-        this.population = population;
+        base.Initialize(SetterCallback);
 
 
-
-        foreach(Pop pop in population.Pops)
+        if (SelectedPopulation == null)
         {
-            MenuCountObject menuObject = Instantiate(MenuObjectPrefab, PopHolder.transform);
-            menuObject.ObjectText.text = pop.name;
-            menuObject.CountText.text = string.Format("{0}", pop.age.ToString());
-            Prefabs.Add(menuObject.gameObject);
+            return;
+        }
+
+        foreach(Population subPop in SelectedPopulation.subPops)
+        {
+            var subPopText = Instantiate(MenuObjectPrefab, PopHolder.transform);
+            subPopText.ObjectText.text = subPop.rep.ToString();
+            Prefabs.Add(subPopText.gameObject);
+
+            foreach (Pop pop in subPop.Pops)
+            {
+                MenuCountObject menuObject = Instantiate(MenuObjectPrefab, PopHolder.transform);
+                menuObject.ObjectText.text = pop.name;
+                menuObject.CountText.text = string.Format("{0}", pop.age.ToString());
+                Prefabs.Add(menuObject.gameObject);
+            }
         }
     }
+     
+    private void Update()
+    {
 
-    public Population population;
+    }
     public MenuCountObject MenuObjectPrefab;
     public RectTransform PopHolder;
 }

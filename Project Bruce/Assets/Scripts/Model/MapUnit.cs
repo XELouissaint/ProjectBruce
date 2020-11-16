@@ -7,40 +7,46 @@ using Pathfinding;
 
 namespace Bruce
 {
-    public class Unit : IPathUnit
+    public class MapUnit : IPathUnit
     {
-        public Unit(Country country, Hex hex)
+        public MapUnit(Hex hex)
         {
             CurrentHex = hex;
             CallToUnitController();
+            moveSpeed = 1;
+            moveTicks = (int)(CurrentHex.CostToEnter / moveSpeed);
+            
         }
 
-        public Country country;
 
         Hex currentHex;
-        Action<Unit> OnMoved;
+        Action<MapUnit> OnMoved;
         int moveTicks;
+        public float moveSpeed;
 
         public Queue<Hex> HexPath;
-        public Hex CurrentHex { get { return currentHex; } set { OnMoved?.Invoke(this); currentHex = value; } }
+        public Hex CurrentHex { get { return currentHex; } set {  currentHex = value; } }
 
-        public void Tick()
+        public virtual void Tick()
         {
             ConsiderMove();
         }
 
-        public void FindPath(Hex destination)
+        public virtual void FindPath(Hex destination)
         {
             var path = Path.FindPath(this, CurrentHex, destination, Hex.CostEstimate);
 
             HexPath = new Queue<Hex>(path);
         }
 
-        void ConsiderMove()
+        public virtual void ConsiderMove()
         {
             Debug.Log("ConsiderMove");
-            if(HexPath == null || HexPath.Count == 0)
+
+
+            if (HexPath == null || HexPath.Count == 0)
             {
+
                 Debug.Log("No Next Hex");
                 return;
             }
@@ -54,8 +60,8 @@ namespace Bruce
                 else
                 {
                     CurrentHex = HexPath.Dequeue();
-                    moveTicks = (int)CurrentHex.CostToEnter;
-
+                    moveTicks = (int)(CurrentHex.CostToEnter / moveSpeed);
+                    OnMoved?.Invoke(this);
                     Debug.Log("Move");
                 }
             }
@@ -69,9 +75,25 @@ namespace Bruce
         {
             return 1f;
         }        
-        public void RegisterOnMoved(Action<Unit> callback)
+        public void RegisterOnMoved(Action<MapUnit> callback)
         {
             OnMoved += callback;
+        }
+    }
+
+    public class PopUnit : MapUnit
+    {
+        public PopUnit(Country country, Hex hex) : base(hex)
+        {
+            this.Country = country;
+        }
+
+        public Country Country;
+        public Pop Pop;
+
+        public override void FindPath(Hex destination)
+        {
+            base.FindPath(destination);
         }
     }
 }

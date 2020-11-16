@@ -9,12 +9,12 @@ namespace Bruce
         public Building(string name)
         {
             this.name = name;
-            JobsProvided = new List<Job>();
+            JobsProvided = new Dictionary<Job, int>();
             Housing = 0;
         }
         public string name;
         public int Housing;
-        public List<Job> JobsProvided;
+        public Dictionary<Job, int> JobsProvided;
     }
 
     public static class BuildingFactory
@@ -24,11 +24,11 @@ namespace Bruce
             get
             {
                 Building camp = new Building("Base Camp") { Housing = 6 };
-                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Fruit));
-                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Wood));
-                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Stone));
-                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Clay));
-                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Water));
+                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Fruit),2);
+                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Wood),2);
+                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Stone),2);
+                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Clay),2);
+                camp.JobsProvided.Add(JobFactory.GetResource(GameIndex.Water),2);
                 return camp;
             }
         }

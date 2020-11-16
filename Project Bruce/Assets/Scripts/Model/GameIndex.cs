@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bruce
 {
-    
-
     public static class GameIndex
     {
         public static int PopIDCounter;
@@ -102,11 +102,26 @@ namespace Bruce
     {
         public LimitList(int length)
         {
-            Length = length;
+
             list = new List<T>();
+
+            SetLength(length);
         }
+        int length;
         List<T> list;
-        public int Length;
+
+        public void SetLength (int paramValue)
+        {
+            if(list.Count > paramValue)
+            {
+                while (list.Count > paramValue)
+                {
+                    list.RemoveAt(list.Count - 1);
+                }
+            }
+
+            length = paramValue;
+        }
         public T this[int index]
         {
             get
@@ -127,7 +142,7 @@ namespace Bruce
         }
         public bool Add(T pop)
         {
-            if (list.Count >= Length)
+            if (list.Count >= length)
             {
                 return false;
             }

@@ -1,15 +1,16 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Bruce;
-public class UI : MonoBehaviour
+public class UI : Client
 {
     [System.NonSerialized]
     public List<GameObject> Prefabs = new List<GameObject>();
-    public static Settlement SelectedSettlement;
 
-    public virtual void Initialize()
+    public virtual void Initialize(Action SetterCallback)
     {
+        SetterCallback?.Invoke();
         DestroyPrefabs();
     }
 
