@@ -287,6 +287,12 @@ public class MapController : MonoBehaviour
                 break;
         }
 
+        if(hexComp.Hex.Ecosystem.Grass != null)
+        {
+            Debug.Log("Grass");
+            block.SetColor("_Color", Color.green);
+        }
+
         hexComp.GetComponentInChildren<MeshRenderer>().SetPropertyBlock(block);
     }
 

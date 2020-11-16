@@ -30,7 +30,7 @@ namespace Bruce
 
         public void RefreshPopulation()
         {
-            Debug.Log("Country Refresh");
+            //Debug.Log("Country Refresh");
             Population.RefreshPopulation();
 
             foreach (Pop unitPop in UnitManager.Population.Pops)
@@ -40,7 +40,7 @@ namespace Bruce
                     Debug.Log(settlement);
                     if (settlement.Population.Pops.Contains(unitPop))
                     {
-                        Debug.Log("RemovePop");
+                        //Debug.Log("RemovePop");
                         settlement.RemovePop(unitPop);
                     }
                 }

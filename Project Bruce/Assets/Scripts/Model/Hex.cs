@@ -26,10 +26,10 @@ namespace Bruce
         public Country Owner;
         public Settlement Settlement;
         public float soilValue;
+        public HexTerrain Terrain;
+        public HexEcosystem Ecosystem;
 
         public HexEconomy Economy;
-        public HexEcosystem Ecosystem;
-        public HexTerrain Terrain;
 
         public void SetSettlement(Settlement settlement)
         {

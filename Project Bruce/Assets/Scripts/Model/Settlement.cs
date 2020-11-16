@@ -57,11 +57,6 @@ namespace Bruce
             Debug.Log("Set Territory");
         }
 
-        public void AddPop()
-        {
-
-        }
-
         public void RemovePop(Pop pop)
         {
             Debug.Log("RemovePop");
@@ -90,7 +85,7 @@ namespace Bruce
                 }
             }
             
-            var jobDict = JobManager.JobDictionary;
+            var jobDict = JobManager.JobToPopDictionary;
 
             for (int i = 0; i < 100; i++)
             {
@@ -99,7 +94,7 @@ namespace Bruce
                 Job randJob = jobDict.ElementAt(rand).Key;
 
 
-                if(JobManager.AddPopToJob(randJob, pop))
+                if(JobManager.AddPopToVisibleJob(randJob, pop))
                 {
                     return;
                 }

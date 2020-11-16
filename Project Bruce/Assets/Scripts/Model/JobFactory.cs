@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -113,25 +115,28 @@ namespace Bruce
                 getClay.LifeStages.Add(PopLifeStage.YoungAdult);
                 getClay.LifeStages.Add(PopLifeStage.Adult);
 
+                getClay.Requirements += Requirements_Clay;
+
+
                 return getClay;
             }
         }
-        static Job MineClay
-        {
-            get
+            static Job MineClay
             {
-                if (mineClay == null)
+                get
                 {
-                    mineClay = new Job("Mine Clay", MineClayOnExecute);
+                    if (mineClay == null)
+                    {
+                        mineClay = new Job("Mine Clay", MineClayOnExecute);
+                    }
+
+                    mineClay.LifeStages.Add(PopLifeStage.Teen);
+                    mineClay.LifeStages.Add(PopLifeStage.YoungAdult);
+                    mineClay.LifeStages.Add(PopLifeStage.Adult);
+
+                    return mineClay;
                 }
-
-                mineClay.LifeStages.Add(PopLifeStage.Teen);
-                mineClay.LifeStages.Add(PopLifeStage.YoungAdult);
-                mineClay.LifeStages.Add(PopLifeStage.Adult);
-
-                return mineClay;
             }
-        }
         static Job GetWater
         {
             get
@@ -146,6 +151,7 @@ namespace Bruce
                 getWater.LifeStages.Add(PopLifeStage.YoungAdult);
                 getWater.LifeStages.Add(PopLifeStage.Adult);
 
+                getWater.Requirements += Requirements_FreshWater;
                 return getWater;
             }
         }
@@ -233,6 +239,33 @@ namespace Bruce
         public static void GetWaterOnExecute(Pop pop, Settlement settlement)
         {
             settlement.Stockpile.AddResource(GameIndex.Water, 1);
+        }
+
+
+
+        static bool Requirements_Clay(Settlement settlement)
+        {
+            bool clayValue = false;
+            foreach (Hex hex in settlement.Territory)
+            {
+                if (hex.Terrain.SoilType == SoilType.Clay)
+                {
+                    clayValue = true;
+                    break;
+                }
+            }
+            return clayValue;
+        }
+        static bool Requirements_FreshWater(Settlement settlement)
+        {
+            bool waterValue = false;
+
+            foreach(Hex hex in settlement.Territory)
+            {
+
+            }
+
+            return waterValue;
         }
     }
 }

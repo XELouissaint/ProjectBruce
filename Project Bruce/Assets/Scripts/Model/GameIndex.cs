@@ -86,6 +86,16 @@ namespace Bruce
 
         public string name { get; set; }
     }
+    public class Grass
+    {
+        public Grass(string name, float growthValue = 1f)
+        {
+            this.name = name;
+            this.growthValue = growthValue;
+        }
+        float growthValue;
+        public string name { get; set; }
+    }
 
     public class Strength : Stat
     {

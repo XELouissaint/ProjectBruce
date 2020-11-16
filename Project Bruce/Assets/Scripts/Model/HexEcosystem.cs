@@ -15,7 +15,7 @@ namespace Bruce {
         }
         Hex hex;
         public Dictionary<TreeBreed, int> Trees;
-
+        public Grass Grass;
         public int space = 100;
 
         public int TreeTotal
@@ -31,6 +31,8 @@ namespace Bruce {
         {
             GenerateRandomTrees();
         }
+
+        
 
         void GenerateRandomTrees()
         {

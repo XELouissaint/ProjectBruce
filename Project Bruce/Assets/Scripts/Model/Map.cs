@@ -49,6 +49,8 @@ namespace Bruce
                     }
                 }
             }
+
+            GenerateGrass();
         }
 
         #region HexMetrics
@@ -98,6 +100,48 @@ namespace Bruce
                 hex.Terrain.SoilType = SoilType.Sand;
             }
 
+        }
+
+        public void GenerateGrass()
+        {
+            int randX = World.RNG.Next(0, Width);
+            int randZ = World.RNG.Next(0, Height);
+            Hex randomHex = HexGrid[randX, randZ];
+
+            RecursivelySpreadGrass(randomHex);
+        }
+
+        public void RecursivelySpreadGrass(Hex randomHex)
+        {
+            double randGrowth = World.RNG.NextDouble();
+
+            randomHex.Ecosystem.Grass = new Grass("grass", Mathf.Max(.1f, (float)randGrowth));
+
+            foreach (Hex neighbor in randomHex.Neighbors())
+            {
+                float chanceToSpread = .25f;
+
+                switch (neighbor.Terrain.SoilType)
+                {
+                    case SoilType.Sand:
+                        chanceToSpread += 0f;
+                        break;
+
+                    case SoilType.Clay:
+                        chanceToSpread += .25f;
+                        break;
+
+                    case SoilType.Loam:
+                        chanceToSpread += .50f;
+                        break;
+                }
+
+                double randSpread = World.RNG.NextDouble();
+                
+                if (randSpread < chanceToSpread)
+                {
+                }
+            }
         }
     }
 }

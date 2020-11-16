@@ -11,22 +11,21 @@ namespace Bruce
         public SettlementJobManager(Settlement settlement)
         {
             Settlement = settlement;
-            JobDictionary = new Dictionary<Job, LimitList<Pop>>();
+            JobToPopDictionary = new Dictionary<Job, LimitList<Pop>>();
 
             
         }
 
-        public Dictionary<Job, LimitList<Pop>> JobDictionary;
-        public Dictionary<Job, int> MaxWorkersPerJob;
+        public Dictionary<Job, LimitList<Pop>> JobToPopDictionary;
         public Settlement Settlement;
 
         public bool JobsUnWorked()
         {
             bool value = false;
 
-            foreach (Job job in JobDictionary.Keys)
+            foreach (Job job in JobToPopDictionary.Keys)
             {
-                if (JobDictionary[job].Count == 0)
+                if (JobToPopDictionary[job].Count == 0)
                 {
                     return true;
                 }
@@ -37,30 +36,35 @@ namespace Bruce
 
         public void OnJobAdded(Job job)
         {
-            if (JobDictionary.ContainsKey(job))
+            if (JobToPopDictionary.ContainsKey(job))
             {
                 return;
             }
-
-            JobDictionary[job] = new LimitList<Pop>(5);
+            JobToPopDictionary[job] = new LimitList<Pop>(5);
         }
+
+       
 
         public void SetJobListLength(Job job, int length)
         {
-            if(JobDictionary.ContainsKey(job) == false)
+            if(JobToPopDictionary.ContainsKey(job) == false)
             {
                 return;
             }
 
-            JobDictionary[job].SetLength(length);
+            JobToPopDictionary[job].SetLength(length);
         }
 
-        public bool AddPopToJob(Job job, Pop pop)
+        public bool AddPopToVisibleJob(Job job, Pop pop)
         {
-            bool result = JobDictionary[job].Add(pop);
-            foreach (Job key in JobDictionary.Keys)
+            bool result = false;
+            if (VisibleJobs().Contains(job))
             {
-                if (JobDictionary[key].Contains(pop) && result == false)
+                result = JobToPopDictionary[job].Add(pop);
+            }
+            foreach (Job key in JobToPopDictionary.Keys)
+            {
+                if (JobToPopDictionary[key].Contains(pop) && result == false)
                 {
                     RemovePopFromJob(key, pop);
                 }
@@ -70,9 +74,9 @@ namespace Bruce
 
         public void RemovePop(Pop pop)
         {
-            foreach (Job job in JobDictionary.Keys)
+            foreach (Job job in JobToPopDictionary.Keys)
             {
-                if (JobDictionary[job].Contains(pop))
+                if (JobToPopDictionary[job].Contains(pop))
                 {
                     RemovePopFromJob(job, pop);
                 }
@@ -81,14 +85,14 @@ namespace Bruce
 
         public bool RemovePopFromJob(Job job, Pop pop)
         {
-            return JobDictionary[job].Remove(pop);
+            return JobToPopDictionary[job].Remove(pop);
         }
 
         public void ExecuteJobs()
         {
-            foreach (Job job in JobDictionary.Keys)
+            foreach (Job job in JobToPopDictionary.Keys)
             {
-                foreach (Pop pop in JobDictionary[job])
+                foreach (Pop pop in JobToPopDictionary[job])
                 {
                     job.Execute(pop, Settlement);
                 }
@@ -97,18 +101,66 @@ namespace Bruce
 
         public bool AssignPopToUnWorkedJob(Pop pop)
         {
-            foreach (Job job in JobDictionary.Keys)
+            List<Job> visible = VisibleJobs();
+            foreach (Job job in visible)
             {
-
-                if (JobDictionary[job].Count == 0)
+                if (JobToPopDictionary[job].Count == 0)
                 {
-                    bool add = AddPopToJob(job, pop);
+                    bool add = AddPopToVisibleJob(job, pop);
 
                     return add;
                 }
             }
 
             return false;
+        }
+        public List<Job> VisibleJobs()
+        {
+            List<Job> visible = new List<Job>();
+
+            foreach (Job job in JobToPopDictionary.Keys)
+            {
+                if (job.Requirements(Settlement))
+                {
+
+                    visible.Add(job);
+                }
+                else
+                {
+
+                }
+            }
+
+            return visible;
+        }
+
+        public void OnPopUnemployed(Pop pop)
+        {
+            
+            for (int i = 0; i < 100; i++)
+            {
+                if (AssignPopToUnWorkedJob(pop))
+                {
+                    return;
+                }
+            }
+
+            var jobDict = JobToPopDictionary;
+
+            for (int i = 0; i < 100; i++)
+            {
+                int rand = World.RNG.Next(0, jobDict.Keys.Count);
+
+                Job randJob = jobDict.ElementAt(rand).Key;
+
+
+                if (AddPopToVisibleJob(randJob, pop))
+                {
+                    return;
+                }
+
+            }
+
         }
     }
 }

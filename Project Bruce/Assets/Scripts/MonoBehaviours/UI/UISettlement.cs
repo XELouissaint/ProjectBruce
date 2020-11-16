@@ -41,7 +41,7 @@ public class UISettlement : UI
             Prefabs.Add(resourceMenuObject.gameObject);
         }
 
-        var jobDict = SelectedSettlement.JobManager.JobDictionary;
+        var jobDict = SelectedSettlement.JobManager.JobToPopDictionary;
         foreach(Job job in jobDict.Keys)
         {
             MenuCountObject jobMenuObject = Instantiate(MenuObjectPrefab, JobHolder);
