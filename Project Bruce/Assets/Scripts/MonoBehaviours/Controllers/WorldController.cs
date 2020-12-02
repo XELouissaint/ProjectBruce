@@ -37,10 +37,10 @@ public class WorldController : MonoBehaviour
         UIController.Instance.UISettlement.Initialize(settlementSetter);
 
         CreateUnitButton.onClick.AddListener(() => { CreateUnit(); });
+        world.SpawnStartAnimals();
 
         Debug.Log(string.Format("{0},{1}", playerCountry.Settlements.First().hex.gridX, playerCountry.Settlements.First().hex.gridZ));
     }
-    bool assigned = false;
 
     public void CreateUnit()
     {
@@ -53,17 +53,9 @@ public class WorldController : MonoBehaviour
 
     private void Update()
     {
-        if(UI.SelectedUnit != null)
-        {
-            Debug.Log("Selected Unit");
-        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (!assigned)
-            {
-                Settlement settlement = world.Countries.First().Settlements.First();
-
-            }
 
             world.Tick();
 

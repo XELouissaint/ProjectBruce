@@ -32,9 +32,9 @@ namespace Bruce
         string name { get; set; }
     }
 
-    public interface Stat
+    public class Stat
     {
-        string name { get; set; }
+        public float Value;
     }
     public class Cultivar : Resource
     {
@@ -120,6 +120,8 @@ namespace Bruce
         int length;
         List<T> list;
 
+        public int Length { get { return length; } }
+
         public void SetLength (int paramValue)
         {
             if(list.Count > paramValue)
@@ -131,6 +133,11 @@ namespace Bruce
             }
 
             length = paramValue;
+        }
+
+        public List<T> GetList()
+        {
+            return list;
         }
         public T this[int index]
         {

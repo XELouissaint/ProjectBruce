@@ -7,43 +7,62 @@ using Pathfinding;
 
 namespace Bruce
 {
-    public class MapUnit : IPathUnit
+    public class Unit : IPathUnit
     {
-        public MapUnit(Hex hex)
+        public Unit(Hex hex)
         {
             CurrentHex = hex;
             CallToUnitController();
             moveSpeed = 1;
             moveTicks = (int)(CurrentHex.CostToEnter / moveSpeed);
-            
+            Orders = new Queue<UnitOrder>();
         }
 
 
         Hex currentHex;
-        Action<MapUnit> OnMoved;
+        Action<Unit> OnMoved;
         int moveTicks;
         public float moveSpeed;
 
         public Queue<Hex> HexPath;
+        public Queue<UnitOrder> Orders;
         public Hex CurrentHex { get { return currentHex; } set {  currentHex = value; } }
 
         public virtual void Tick()
         {
+            ExecuteNextOrder();
+
+
             ConsiderMove();
         }
 
         public virtual void FindPath(Hex destination)
         {
             var path = Path.FindPath(this, CurrentHex, destination, Hex.CostEstimate);
-
+            Debug.Log("Find Path");
             HexPath = new Queue<Hex>(path);
+        }
+
+        public virtual void ExecuteNextOrder()
+        {
+            if(Orders.Count > 0)
+            {
+                Debug.Log("Orders");
+                UnitOrder order = Orders.First();
+
+                if(order.Destination == CurrentHex)
+                {
+                    Debug.Log("Execute");
+                    Orders.Dequeue().OnExecute?.Invoke();
+                    return;
+                }
+
+                FindPath(order.Destination);
+            }
         }
 
         public virtual void ConsiderMove()
         {
-            Debug.Log("ConsiderMove");
-
-
             if (HexPath == null || HexPath.Count == 0)
             {
 
@@ -52,7 +71,7 @@ namespace Bruce
             }
             else
             {
-                if(moveTicks-- > 0)
+                if(--moveTicks > 0)
                 {
                     Debug.Log("moveTicks > 0");
                     return;
@@ -62,7 +81,6 @@ namespace Bruce
                     CurrentHex = HexPath.Dequeue();
                     moveTicks = (int)(CurrentHex.CostToEnter / moveSpeed);
                     OnMoved?.Invoke(this);
-                    Debug.Log("Move");
                 }
             }
         }
@@ -75,13 +93,13 @@ namespace Bruce
         {
             return 1f;
         }        
-        public void RegisterOnMoved(Action<MapUnit> callback)
+        public void RegisterOnMoved(Action<Unit> callback)
         {
             OnMoved += callback;
         }
     }
 
-    public class PopUnit : MapUnit
+    public class PopUnit : Unit
     {
         public PopUnit(Country country, Hex hex) : base(hex)
         {
@@ -90,6 +108,22 @@ namespace Bruce
 
         public Country Country;
         public Pop Pop;
+
+        public override void FindPath(Hex destination)
+        {
+            base.FindPath(destination);
+        }
+    }
+
+    public class AnimalUnit : Unit
+    {
+        public AnimalUnit(Country country, Hex hex) : base(hex)
+        {
+            this.Country = country;
+        }
+
+        public Country Country;
+        public Animal Animal;
 
         public override void FindPath(Hex destination)
         {

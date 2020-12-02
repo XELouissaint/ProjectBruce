@@ -59,7 +59,7 @@ namespace Bruce
 
         public void RemovePop(Pop pop)
         {
-            Debug.Log("RemovePop");
+
             Population.RemovePop(pop);
             JobManager.RemovePop(pop);
         }

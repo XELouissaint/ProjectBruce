@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Bruce;
 
-public class HexComponent : MonoBehaviour
+public class HexComponent : MapComponent
 {
     public void Init(Hex hex)
     {

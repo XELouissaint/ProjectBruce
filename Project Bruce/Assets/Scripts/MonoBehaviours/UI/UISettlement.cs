@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using Bruce;
 public class UISettlement : UI
 {
-
     public override void Initialize(Action SetterCallback)
     {
         base.Initialize(SetterCallback);
@@ -41,24 +40,19 @@ public class UISettlement : UI
             Prefabs.Add(resourceMenuObject.gameObject);
         }
 
-        var jobDict = SelectedSettlement.JobManager.JobToPopDictionary;
-        foreach(Job job in jobDict.Keys)
-        {
-            MenuCountObject jobMenuObject = Instantiate(MenuObjectPrefab, JobHolder);
-            jobMenuObject.ObjectText.text = string.Format(job.name);
-            jobMenuObject.CountText.text =/* jobDict[job].Count > 0 ?*/ string.Format("Worked {0}", jobDict[job].Count); /*: string.Format("Not Worked");*/ 
-
-            Prefabs.Add(jobMenuObject.gameObject);
-        }
-
+        Action setterCallback = () => { UIJobsList.JobDictionary = SelectedSettlement.JobManager.JobToPopDictionary; };
+        
         ExpandTerritoryButton.onClick.AddListener(() => { ExpandTerritoryButtonOnClick(); });
+        OpenJobsListButton.onClick.AddListener(() => { UIController.Instance.DisplayUI(UIJobsList, setterCallback); });
+        
     }
+    public UIJobsList UIJobsList;
 
     public RectTransform ResourceHolder;
     public RectTransform BuildingHolder;
-    public RectTransform JobHolder;
     public MenuCountObject MenuObjectPrefab;
     public Button ExpandTerritoryButton;
+    public Button OpenJobsListButton;
 
     public void ExpandTerritoryButtonOnClick()
     {

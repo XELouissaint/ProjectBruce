@@ -28,8 +28,9 @@ namespace Bruce
         public float soilValue;
         public HexTerrain Terrain;
         public HexEcosystem Ecosystem;
-
         public HexEconomy Economy;
+
+        public List<Unit> Units;
 
         public void SetSettlement(Settlement settlement)
         {

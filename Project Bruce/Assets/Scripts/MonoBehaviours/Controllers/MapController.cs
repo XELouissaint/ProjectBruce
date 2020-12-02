@@ -66,6 +66,7 @@ public class MapController : MonoBehaviour
     public Color ClayColor;
     public Color SandColor;
     public Color LoamColor;
+    public Color GrassColor;
 
     public enum MapMode
     {
@@ -197,23 +198,29 @@ public class MapController : MonoBehaviour
     {
         foreach (HexComponent hexComp in HexComponents)
         {
-            for (int i = 0; i < hexComp.Hex.Ecosystem.Trees[TreeBreed.Oak]; i++)
+            if (hexComp.Hex.Ecosystem.Trees.ContainsKey(TreeBreed.Oak))
             {
-                int randX = World.RNG.Next(0, hexComp.ObjectGrid.GetLength(0));
-                int randY = World.RNG.Next(0, hexComp.ObjectGrid.GetLength(1));
-                
-                RecursivelyFillPlantGrid(hexComp, randX, randY, Tree1Prefab);
-            }
-            for (int i = 0; i < hexComp.Hex.Ecosystem.Trees[TreeBreed.Apple]; i++)
-            {
-                int randX = World.RNG.Next(0, hexComp.ObjectGrid.GetLength(0));
-                int randY = World.RNG.Next(0, hexComp.ObjectGrid.GetLength(1));
+                for (int i = 0; i < hexComp.Hex.Ecosystem.Trees[TreeBreed.Oak]; i++)
+                {
+                    int randX = World.RNG.Next(0, hexComp.ObjectGrid.GetLength(0));
+                    int randY = World.RNG.Next(0, hexComp.ObjectGrid.GetLength(1));
 
-                RecursivelyFillPlantGrid(hexComp, randX, randY, Tree2Prefab);
+                    RecursivelyFillPlantGrid(hexComp, randX, randY, Tree1Prefab);
+                }
+
+            }
+            if (hexComp.Hex.Ecosystem.Trees.ContainsKey(TreeBreed.Apple))
+            {
+                for (int i = 0; i < hexComp.Hex.Ecosystem.Trees[TreeBreed.Apple]; i++)
+                {
+                    int randX = World.RNG.Next(0, hexComp.ObjectGrid.GetLength(0));
+                    int randY = World.RNG.Next(0, hexComp.ObjectGrid.GetLength(1));
+
+                    RecursivelyFillPlantGrid(hexComp, randX, randY, Tree2Prefab);
+                }
             }
         }
     }
-
     void RecursivelyFillPlantGrid(HexComponent hexComp, int randX, int randY, GameObject Prefab)
     {
         if (hexComp.ObjectGrid[randX, randY].GO == null)
@@ -287,10 +294,15 @@ public class MapController : MonoBehaviour
                 break;
         }
 
-        if(hexComp.Hex.Ecosystem.Grass != null)
+        if (hexComp.Hex.Ecosystem.Grass != null)
         {
-            Debug.Log("Grass");
-            block.SetColor("_Color", Color.green);
+            block.SetColor("_Color", GrassColor);
+        }
+
+        if (hexComp.Hex.Terrain.WaterSource == WaterSource.Lake)
+        {
+            block.SetColor("_Color", Color.blue);
+
         }
 
         hexComp.GetComponentInChildren<MeshRenderer>().SetPropertyBlock(block);

@@ -7,26 +7,27 @@ public class UnitController : MonoBehaviour
 {
     private void Awake()
     {
-        if(Instance == null)
-        {
-            Instance = this;
-        }
+        
 
     }
     public void Init()
     {
-        
-        UnitToComponentDictionary = new Dictionary<MapUnit, UnitComponent>();
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        UnitToComponentDictionary = new Dictionary<Unit, UnitComponent>();
     }
 
     public static UnitController Instance;
 
-    Dictionary<MapUnit, UnitComponent> UnitToComponentDictionary;
-    public UnitComponent UnitPrefab;
-    public void OnUnitCreated(MapUnit unit)
+    Dictionary<Unit, UnitComponent> UnitToComponentDictionary;
+    public PopUnitComponent UnitPrefab;
+    public AnimalUnitComponent AnimalPrefab;
+    public void OnUnitCreated(Unit unit)
     {
         unit.RegisterOnMoved(OnUnitMoved);
-        Debug.Log("OnUnitCreated");
+
         if (unit == null)
         {
             return;
@@ -34,10 +35,19 @@ public class UnitController : MonoBehaviour
 
         if (UnitToComponentDictionary.ContainsKey(unit) == false)
         {
-            UnitComponent unitComp = Instantiate(UnitPrefab, this.transform);
-            unitComp.transform.localPosition = unit.CurrentHex.Position;
-            unitComp.Unit = unit;
-            UnitToComponentDictionary[unit] = unitComp;
+            if(unit is PopUnit popUnit)
+            {
+                PopUnitComponent unitComp = Instantiate(UnitPrefab, this.transform);
+                unitComp.transform.localPosition = unit.CurrentHex.Position;
+                unitComp.Unit = popUnit;
+                UnitToComponentDictionary[unit] = unitComp;
+            }else if (unit is AnimalUnit animalUnit)
+            {
+                AnimalUnitComponent unitComp = Instantiate(AnimalPrefab, this.transform);
+                unitComp.transform.localPosition = unit.CurrentHex.Position;
+                unitComp.Unit = animalUnit;
+                UnitToComponentDictionary[unit] = unitComp;
+            }
         }
         else
         {
@@ -45,12 +55,12 @@ public class UnitController : MonoBehaviour
         }
     }
 
-    void OnUnitMoving(MapUnit unit)
+    void OnUnitMoving(Unit unit)
     {
 
     }
 
-    void OnUnitMoved(MapUnit unit)
+    void OnUnitMoved(Unit unit)
     {
         Debug.Log("MOVE");
         if (UnitToComponentDictionary.ContainsKey(unit) == false)

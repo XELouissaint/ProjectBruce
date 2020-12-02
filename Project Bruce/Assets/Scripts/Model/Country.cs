@@ -19,7 +19,6 @@ namespace Bruce
 
 
 
-
         public string Name;
         public FlagData flagData;
         public Color mapColor;
@@ -37,7 +36,7 @@ namespace Bruce
             {
                 foreach(Settlement settlement in Settlements)
                 {
-                    Debug.Log(settlement);
+
                     if (settlement.Population.Pops.Contains(unitPop))
                     {
                         //Debug.Log("RemovePop");
@@ -94,7 +93,7 @@ namespace Bruce
         public CountryUnitManager(Country country)
         {
             this.Country = country;
-            Units = new HashSet<MapUnit>();
+            Units = new HashSet<Unit>();
             Population = new Population(this, Country.Population);
 
             Population.RegisterOnPopAdded(OnPopAdded);
@@ -105,9 +104,9 @@ namespace Bruce
 
         public Country Country;
         public Population Population { get; set; }
-        HashSet<MapUnit> Units;
+        HashSet<Unit> Units;
 
-        public void AddUnit(MapUnit unit)
+        public void AddUnit(Unit unit)
         {
             Units.Add(unit);
             if (unit is PopUnit popUnit)
@@ -116,7 +115,7 @@ namespace Bruce
             }
         }
 
-        public void RemoveUnits(MapUnit unit)
+        public void RemoveUnits(Unit unit)
         {
             Units.Remove(unit);
             if (unit is PopUnit popUnit)
@@ -127,7 +126,7 @@ namespace Bruce
 
         public void Tick()
         {
-            foreach (MapUnit unit in Units)
+            foreach (Unit unit in Units)
             {
                 unit.Tick();
             }

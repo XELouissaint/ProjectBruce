@@ -22,7 +22,7 @@ public class MouseController : MonoBehaviour
         Instance = this;
         mouseMode = MouseMode.Select;
     }
-    public GameObject SelectedObject;
+    public MapComponent SelectedObject;
     private void Update()
     {
 
@@ -37,8 +37,7 @@ public class MouseController : MonoBehaviour
                 switch (mouseMode)
                 {
                     case MouseMode.Select:
-                        SelectSettlement(hitInfo);
-                        SelectUnit(hitInfo);
+                        Select(hitInfo);
                         break;
                     case MouseMode.ExpandTerritory:
                         SelectHexToExpand(hitInfo);
@@ -53,47 +52,47 @@ public class MouseController : MonoBehaviour
             RaycastHit hitInfo;
             if (Physics.Raycast(ray, out hitInfo))
             {
-                if(SelectedObject != null)
-                {
-                    if(SelectedObject.GetComponentInParent<UnitComponent>() != null)
-                    {
-                        UnitComponent unitComp = SelectedObject.GetComponentInParent<UnitComponent>();
-                        if(hitInfo.collider.gameObject.GetComponentInParent<HexComponent>() != null)
-                        {
-                            HexComponent destHexComp = hitInfo.collider.gameObject.GetComponentInParent<HexComponent>();
-
-                            unitComp.Unit.FindPath(destHexComp.Hex);
-
-                        }
-                    }
-                }
+                Debug.Log("Target");
+                Target(hitInfo);
             }
         }
     }
 
-    void SelectSettlement(RaycastHit hitInfo)
+    void Select(RaycastHit hitInfo)
     {
-        if (hitInfo.collider.gameObject.GetComponentInParent<HexComponent>() != null)
+        if (hitInfo.collider.gameObject.GetComponentInParent<MapComponent>() != null)
         {
-            HexComponent hexComp = hitInfo.collider.gameObject.GetComponentInParent<HexComponent>();
+            MapComponent mapComp = hitInfo.collider.gameObject.GetComponentInParent<MapComponent>();
 
-            if (hexComp.Hex.Settlement != null)
+            if (mapComp is HexComponent hexComp)
             {
-                UI.SelectedSettlement = hexComp.Hex.Settlement;
-                SelectedObject = hitInfo.collider.gameObject;
+                if (hexComp.Hex.Settlement != null)
+                {
+                    UI.SelectedSettlement = hexComp.Hex.Settlement;
+                    SelectedObject = hexComp;
 
+                }
+            } 
+            else if (mapComp is PopUnitComponent unitComp)
+            {
+                UI.SelectedUnit = unitComp.Unit;
+                SelectedObject = unitComp;
             }
         }
     }
-    void SelectUnit(RaycastHit hitInfo)
+
+    void Target(RaycastHit hitInfo)
     {
-        if (hitInfo.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
+        MapComponent mapComp = hitInfo.collider.gameObject.GetComponentInParent<MapComponent>();
+
+        if (mapComp is AnimalUnitComponent animalUnitComp)
         {
-            UnitComponent unitComp = hitInfo.collider.gameObject.GetComponentInParent<UnitComponent>();
-            UI.SelectedUnit = unitComp.Unit;
-            SelectedObject = hitInfo.collider.gameObject;
-
-
+            Debug.Log(animalUnitComp);
+            if(SelectedObject is PopUnitComponent popUnitComp)
+            {
+                Debug.Log("Enqueue");
+                popUnitComp.Unit.Orders.Enqueue(UnitOrderFactory.HuntAnimal(popUnitComp.Unit, animalUnitComp.Unit));
+            }
         }
     }
 

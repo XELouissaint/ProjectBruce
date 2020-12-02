@@ -38,6 +38,11 @@ namespace Bruce {
         {
             int rand = 0;
 
+            if(hex.Terrain.WaterSource == WaterSource.Lake)
+            {
+                return;
+            }
+
             switch (hex.Terrain.SoilType) 
             {
                 case SoilType.Clay:

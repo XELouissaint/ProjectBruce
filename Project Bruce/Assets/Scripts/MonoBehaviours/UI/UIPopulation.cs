@@ -21,6 +21,7 @@ public class UIPopulation : UI
         {
             var subPopText = Instantiate(MenuObjectPrefab, PopHolder.transform);
             subPopText.ObjectText.text = subPop.rep.ToString();
+            subPopText.CountText.text = subPop.Pops.Count.ToString();
             Prefabs.Add(subPopText.gameObject);
 
             foreach (Pop pop in subPop.Pops)

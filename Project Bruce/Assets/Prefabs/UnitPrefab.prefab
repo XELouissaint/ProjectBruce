@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6137432580240239375}
-  - component: {fileID: 3018551462692110266}
+  - component: {fileID: 2026433250742119946}
   m_Layer: 0
   m_Name: UnitPrefab
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3018551462692110266
+--- !u!114 &2026433250742119946
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,11 +41,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2676265351672472304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4be35e7496320c42a1ec80bd452287a, type: 3}
+  m_Script: {fileID: 11500000, guid: 2f99118b19c14544593c87fc69687742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 4
   newPosition: {x: 0, y: 0, z: 0}
+  oldPosition: {x: 0, y: 0, z: 0}
+  currentHex: 
 --- !u!64 &515581724
 MeshCollider:
   m_ObjectHideFlags: 0

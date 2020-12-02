@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Bruce;
 
-public class UnitComponent : MonoBehaviour
+public class UnitComponent : MapComponent
 {
-    public MapUnit Unit;
+
+    protected Unit baseUnit;
 
     bool hasMoved = false;
-
     public float speed = 4;
     public Vector3 newPosition;
     public Vector3 oldPosition;
@@ -17,11 +17,18 @@ public class UnitComponent : MonoBehaviour
     {
         newPosition = transform.position;
         oldPosition = transform.position;
+
+
     }
 
     private void Update()
     {
-        currentHex = Unit != null ? string.Format("{0},{1}", Unit.CurrentHex.gridX, Unit.CurrentHex.gridZ) : string.Empty;
+        OnUpdate();
+    }
+
+    public virtual void OnUpdate()
+    {
+        currentHex = baseUnit != null ? string.Format("{0},{1}", baseUnit.CurrentHex.gridX, baseUnit.CurrentHex.gridZ) : string.Empty;
 
 
         if (hasMoved)
@@ -29,17 +36,20 @@ public class UnitComponent : MonoBehaviour
             transform.position = Vector3.Lerp(this.transform.position, newPosition, speed * Time.deltaTime);
         }
 
-        if(Vector3.Distance(transform.position,newPosition) <= .1)
+        if (Vector3.Distance(transform.position, newPosition) <= .1)
         {
             transform.position = newPosition;
             hasMoved = false;
         }
     }
-
-    public void BeginMoveToHex(Hex hex)
+    public virtual void BeginMoveToHex(Hex hex)
     {
         newPosition = hex.Position;
         Debug.Log("New Position");
         hasMoved = true;
     }
+
+    
 }
+
+

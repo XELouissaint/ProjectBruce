@@ -80,4 +80,25 @@ namespace Bruce
             }
         }
     }
+
+    public class PopStats
+    {
+        public PopStats(Pop pop)
+        {
+            Pop = pop;
+        }
+        public Pop Pop;
+
+        public Stat Creativity;
+        public Stat Wit;
+        public Stat Logic;
+
+        public Stat Fitness;
+        public Stat Dexterity;
+        public Stat Prowess;
+
+        public Stat Charm;
+        public Stat Looks;
+        public Stat Persuasion;
+    }
 }

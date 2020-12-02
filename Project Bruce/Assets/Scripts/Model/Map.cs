@@ -27,10 +27,10 @@ namespace Bruce
                     Hex hex = HexGrid[x, z] = new Hex(x,z);
                     Vector3 position = new Vector3(HexHorizontalSpacing() * (x + z / 2f), 0, HexVerticalSpacing() * z);
                     hex.Position = position;
-                    float noiseValue = Noise.GenerateNoiseMap(10, 10, World.RNG.Next(), .4f, 8, 12, 12, Vector3.zero)[x, z];
+                    float noiseValue = Noise.GenerateNoiseMap(Width, Height, World.RNG.Next(), .4f, 8, 12, 12, Vector3.zero)[x, z];
                     hex.soilValue = noiseValue;
                     AssignHexSoilTypeBasedOnNoise(hex, noiseValue);
-
+                    AssignHexWaterSource(hex);
                     hex.Ecosystem.GenerateRandomEcosystem();
 
                     if (x > 0)
@@ -102,20 +102,73 @@ namespace Bruce
 
         }
 
-        public void GenerateGrass()
+        public void AssignHexWaterSource(Hex hex)
         {
-            int randX = World.RNG.Next(0, Width);
-            int randZ = World.RNG.Next(0, Height);
-            Hex randomHex = HexGrid[randX, randZ];
+            double randWater = World.RNG.NextDouble();
 
-            RecursivelySpreadGrass(randomHex);
+            if(randWater < .1)
+            {
+                hex.Terrain.WaterSource = WaterSource.Lake;
+            }
+            else
+            {
+                hex.Terrain.WaterSource = WaterSource.Dry;
+            }
         }
 
-        public void RecursivelySpreadGrass(Hex randomHex)
+        public void GenerateGrass()
         {
-            double randGrowth = World.RNG.NextDouble();
 
-            randomHex.Ecosystem.Grass = new Grass("grass", Mathf.Max(.1f, (float)randGrowth));
+            for (int i = 0; i < 3; i++)
+            {
+
+                double randGrowth = World.RNG.NextDouble();
+                int randX = World.RNG.Next(0, Width);
+                int randZ = World.RNG.Next(0, Height);
+
+                Hex randomHex = HexGrid[randX, randZ];
+                randomHex.Ecosystem.Grass = new Grass("grass", Mathf.Max(.1f, (float)randGrowth));
+
+                SpreadGrass(randomHex);
+
+                SpreadGrassAcrossGrid();
+            }
+        }
+
+        public void SpreadGrassAcrossGrid()
+        {
+            List<Hex> hexesWithGrass = new List<Hex>();
+            foreach (Hex hex in HexGrid)
+            {
+                if (hex.Ecosystem.Grass != null)
+                {
+                    hexesWithGrass.Add(hex);
+                }
+            }
+
+            foreach (Hex hex in hexesWithGrass)
+            {
+                bool canSpread = false;
+                foreach (Hex neighbor in hex.Neighbors())
+                {
+                    if(canSpread == true)
+                    {
+                        break;
+                    }
+                    if (neighbor.Ecosystem.Grass == null)
+                    {
+                        canSpread = true;
+                    }
+                }
+                if (canSpread)
+                {
+                    SpreadGrass(hex);
+                }
+            }
+        }
+
+        public void SpreadGrass(Hex randomHex)
+        {
 
             foreach (Hex neighbor in randomHex.Neighbors())
             {
@@ -138,8 +191,12 @@ namespace Bruce
 
                 double randSpread = World.RNG.NextDouble();
                 
-                if (randSpread < chanceToSpread)
+                if (randSpread <= chanceToSpread)
                 {
+
+                    double neighborGrowth = World.RNG.NextDouble();
+
+                    neighbor.Ecosystem.Grass = new Grass("grass", Mathf.Max(.1f, (float)neighborGrowth));
                 }
             }
         }
