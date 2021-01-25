@@ -69,9 +69,12 @@ public class MouseController : MonoBehaviour
                 if (hexComp.Hex.Settlement != null)
                 {
                     UI.SelectedSettlement = hexComp.Hex.Settlement;
-                    SelectedObject = hexComp;
-
                 }
+                UI.SelectedHex = hexComp.Hex;
+                SelectedObject = hexComp;
+
+                UIController.DisplayUI(UIController.Instance.UIHex,() => { UI.SelectedHex = hexComp.Hex; });
+   
             } 
             else if (mapComp is PopUnitComponent unitComp)
             {

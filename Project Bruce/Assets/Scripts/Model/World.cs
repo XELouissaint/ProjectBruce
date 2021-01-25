@@ -10,7 +10,8 @@ namespace Bruce
     {
         public World(Map map = null)
         {
-            if(map == null)
+            Instance = this;
+            if (map == null)
             {
                 Map = new Map();
             }
@@ -18,29 +19,41 @@ namespace Bruce
             {
                 Map = map;
             }
-
+            BuildingManager = new WorldBuildingManager();
+            InteractionSystem = new WorldInteractionSystem(this);
             Countries = new HashSet<Country>();
             ActiveCountries = new HashSet<Country>();
-
+            CalendarSystem = CalendarSystem.Gregorian();
             Map.GenerateHexGrid();
             SpawnStartCountries();
+
         }
 
         public static System.Random RNG = new System.Random();
 
+        public static World Instance;
+
+        public Action<Pop> OnPopAdded;
 
         public Map Map;
-
+        public CalendarSystem CalendarSystem;
+        public WorldBuildingManager BuildingManager;
+        public WorldInteractionSystem InteractionSystem;
         public Country Nature;
         public HashSet<Country> Countries;
         public HashSet<Country> ActiveCountries;
 
         public void Tick()
         {
+            CalendarSystem.TickDay();
             foreach (Country country in ActiveCountries)
             {
                 country.Tick();
             }
+
+            Nature.Tick();
+
+            BuildingManager.Tick();
         }
 
         public void SpawnStartCountries()
@@ -55,6 +68,8 @@ namespace Bruce
                 Hex hex = GetOptimalHexForSettlement();
 
                 Settlement settlement = new Settlement(country, hex);
+
+                settlement.Population.RegisterOnPopAdded(InteractionSystem.OnPopAdded);
                 settlement.Population.GenerateRandomPopulation(10);
 
                 country.AddSettlement(settlement);
@@ -63,7 +78,8 @@ namespace Bruce
 
                 Countries.Add(country);
                 ActiveCountries.Add(country);
-                
+
+                Debug.Log("Keys: " + InteractionSystem.InteractScore.Keys.Count);
             }
         }
 
@@ -73,8 +89,32 @@ namespace Bruce
 
             AnimalUnit animalUnit = new AnimalUnit(Nature, RecursivelyGetFreeHex());
             animalUnit.Animal = animal;
+            animalUnit.RegisterOnEvadedHunt(FleeToRandomHex);
 
             Nature.UnitManager.AddUnit(animalUnit);
+        }
+
+        void FleeToRandomHex(AnimalUnit animalUnit)
+        {
+            int xOffset = RNG.Next(-2,3);
+            int zOffset = RNG.Next(-2,3);
+
+            int randX = animalUnit.CurrentHex.gridX + xOffset;
+            int randZ = animalUnit.CurrentHex.gridZ + zOffset;
+
+            Hex newHex = Map.GetHexAt(randX, randZ);
+
+            if (newHex != null)
+            {
+                animalUnit.FindPath(newHex);
+
+                Debug.Log(randX +"," + randZ);
+                Debug.Log(animalUnit.HexPath.Count);
+            }
+            else
+            {
+                FleeToRandomHex(animalUnit);
+            }
         }
 
         public Hex RecursivelyGetFreeHex()
@@ -143,6 +183,11 @@ namespace Bruce
             selected = hexScores.Aggregate((x, y) => x.Value > y.Value ? x : y).Key;
 
             return selected;
+        }
+
+        public static void GiveIdeaBoost(Country country, float multiplier)
+        {
+            country.SciencePool.PoolValue += 50 * (1 + multiplier);
         }
     }
 }

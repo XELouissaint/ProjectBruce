@@ -40,6 +40,7 @@ public class UnitController : MonoBehaviour
                 PopUnitComponent unitComp = Instantiate(UnitPrefab, this.transform);
                 unitComp.transform.localPosition = unit.CurrentHex.Position;
                 unitComp.Unit = popUnit;
+                unitComp.Unit.Inventory.RegisterOnResourceAdded((resource) => { });
                 UnitToComponentDictionary[unit] = unitComp;
             }else if (unit is AnimalUnit animalUnit)
             {
@@ -71,5 +72,10 @@ public class UnitController : MonoBehaviour
         {
             UnitToComponentDictionary[unit].BeginMoveToHex(unit.CurrentHex);
         }
+    }
+
+    public void OnResourceAdded(Resource resource)
+    {
+
     }
 }

@@ -9,24 +9,30 @@ public class UIController : MonoBehaviour
     {
         Instance = this;
     }
-    public UIPopulation UIPopulation;
-    public UIPopulation DummyPopulation;
-    public UISettlement UISettlement;
+    [SerializeField] public UIHex UIHex;
+    [SerializeField] public UISettlement UISettlement;
+    public UICenterLeft UICenterLeft;
     public UIJobPops UIJobPops;
     public UIJobsList UIJobsList;
+    public UIGameTime UIGameTime;
+
     public static UIController Instance;
 
-    public void DisplayUI(UI ui, Action setterCallback)
+    public static void DisplayUI(UI panel, Action setterCallback)
     {
-        ui.gameObject.SetActive(true);
-        ui.Initialize(setterCallback);
+        panel.gameObject.SetActive(true);
+        panel.Initialize(setterCallback);
     }
 
-    public void HideUI(UI ui)
+    public static void HideUI(UI panel)
     {
-        ui.gameObject.SetActive(false);
+        panel.gameObject.SetActive(false);
     }
-    public void RefreshUI(UI panel)
+    public static void CloseUI(UI panel)
+    {
+        panel.Close();
+    }
+    public static void RefreshUI(UI panel)
     {
         panel.Initialize(null);
         Debug.Log("Refresh");

@@ -41,8 +41,6 @@ namespace Bruce
 
         public void AddBuilding(Building building)
         {
-            Buildings.Add(building);
-
             foreach(Job job in building.JobsProvided.Keys)
             {
                 JobManager.OnJobAdded(job);
@@ -50,11 +48,17 @@ namespace Bruce
             }
         }
 
+        public void BeginConstructBuilding(Building building)
+        {
+            World.Instance.BuildingManager.UnderConstructionBuildings.Add(new BuildingPrototype(building,hex));
+        }
+
+
         public void AddTerritory(Hex hex)
         {
             Territory.Add(hex);
+            hex.BuildingManager.OnBuildingConstructed = AddBuilding;
             hex.Owner = this.country;
-            Debug.Log("Set Territory");
         }
 
         public void RemovePop(Pop pop)
@@ -72,6 +76,7 @@ namespace Bruce
         public void Tick()
         {
             JobManager.ExecuteJobs();
+
         }
 
         public void OnPopAdded(Pop pop)
@@ -85,7 +90,7 @@ namespace Bruce
                 }
             }
             
-            var jobDict = JobManager.JobToPopDictionary;
+            var jobDict = JobManager.JobDictionary;
 
             for (int i = 0; i < 100; i++)
             {
@@ -93,12 +98,7 @@ namespace Bruce
 
                 Job randJob = jobDict.ElementAt(rand).Key;
 
-
-                if(JobManager.AddPopToVisibleJob(randJob, pop))
-                {
-                    return;
-                }
-
+                break;
             }
 
         }

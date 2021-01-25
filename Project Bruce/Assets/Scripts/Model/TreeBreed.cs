@@ -27,7 +27,7 @@ namespace Bruce
             {
                 if(oak == null)
                 {
-                    oak = new TreeBreed(GameIndex.None, GameIndex.OakTree, 8, 0);
+                    oak = new TreeBreed(GameIndex.PlantFibers, GameIndex.OakTree, 8, 10);
                 }
 
                 return oak;

@@ -9,10 +9,11 @@ namespace Bruce
         public Country()
         {
             mapColor = new Color(Random.value, Random.value, Random.value);
+            SciencePool = new ResourcePool();
             Population = new Population(this, null);
             UnitManager = new CountryUnitManager(this);
             Settlements = new List<Settlement>();
-
+            Archive = new CountryArchive(this);
             Population.RegisterOnPopAdded(OnPopAdded);
             Population.RegisterOnPopRemoved(OnPopRemoved);
         }
@@ -22,7 +23,9 @@ namespace Bruce
         public string Name;
         public FlagData flagData;
         public Color mapColor;
+        public ResourcePool SciencePool;
 
+        public CountryArchive Archive;
         public CountryUnitManager UnitManager;
         public Population Population { get; set; }
         public List<Settlement> Settlements;
@@ -104,7 +107,7 @@ namespace Bruce
 
         public Country Country;
         public Population Population { get; set; }
-        HashSet<Unit> Units;
+        public HashSet<Unit> Units;
 
         public void AddUnit(Unit unit)
         {
@@ -112,6 +115,9 @@ namespace Bruce
             if (unit is PopUnit popUnit)
             {
                 Population.AddPop(popUnit.Pop);
+            }
+            if(unit is AnimalUnit animalUnit)
+            {
             }
         }
 
@@ -155,6 +161,40 @@ namespace Bruce
             Population.RefreshPopulation();
         }
     }
+
+    public class ResourcePool 
+    {
+        public ResourcePool()
+        {
+            poolValue = 0;
+
+            poolDrainRate = 0;
+        }
+
+        double poolValue;
+
+        public double PoolValue
+        {
+            get
+            {
+                return poolValue;
+            }
+            set
+            {
+                if (value < 0)
+                {
+                    poolValue = 0;
+                }
+                else
+                {
+                    poolValue = value;
+                }
+            }
+        }
+
+        public float poolDrainRate;
+    }
+
 
     public class FlagData
     {

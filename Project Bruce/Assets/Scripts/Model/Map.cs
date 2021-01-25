@@ -18,6 +18,17 @@ namespace Bruce
 
         public int Width { get; protected set; }
         public int Height { get; protected set; }
+
+        public Hex GetHexAt(int x, int z)
+        {
+            if( x < 0 || x >= HexGrid.GetLongLength(0) || z < 0 || z >= HexGrid.GetLongLength(1))
+            {
+                return null;
+            }
+
+            return HexGrid[x, z];
+        }
+
         public void GenerateHexGrid()
         {
             for (int x = 0; x < Width; x++)
@@ -32,7 +43,7 @@ namespace Bruce
                     AssignHexSoilTypeBasedOnNoise(hex, noiseValue);
                     AssignHexWaterSource(hex);
                     hex.Ecosystem.GenerateRandomEcosystem();
-
+                    hex.Economy.EvaluateResources();
                     if (x > 0)
                     {
                         hex.SetNeighbor(HexDirection.W, HexGrid[x - 1, z]);

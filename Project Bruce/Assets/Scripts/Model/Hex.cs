@@ -18,6 +18,7 @@ namespace Bruce
             Terrain = new HexTerrain(this);
             Ecosystem = new HexEcosystem(this);
             Economy = new HexEconomy(this);
+            BuildingManager = new HexBuildingManager(this);
         }
         public Vector3 Position;
         public int gridX;
@@ -28,6 +29,7 @@ namespace Bruce
         public float soilValue;
         public HexTerrain Terrain;
         public HexEcosystem Ecosystem;
+        public HexBuildingManager BuildingManager;
         public HexEconomy Economy;
 
         public List<Unit> Units;

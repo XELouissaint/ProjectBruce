@@ -108,6 +108,7 @@ namespace Bruce
 
         public Country Country;
         public Pop Pop;
+        public UnitInventory Inventory;
 
         public override void FindPath(Hex destination)
         {
@@ -124,10 +125,50 @@ namespace Bruce
 
         public Country Country;
         public Animal Animal;
-
+        public Action<AnimalUnit> OnEvadedHunt;
         public override void FindPath(Hex destination)
         {
             base.FindPath(destination);
         }
+
+        public void EvadedHunt()
+        {
+            OnEvadedHunt?.Invoke(this);
+        }
+
+        public void RegisterOnEvadedHunt(Action<AnimalUnit> callback)
+        {
+            OnEvadedHunt += callback;
+        }
     }
+
+    public class UnitInventory
+    {
+        public UnitInventory(Unit unit)
+        {
+            Unit = unit;
+            if (Unit is PopUnit popUnit)
+            {
+                Contents = new LimitList<Resource>(1);
+            }
+        }
+
+        public Unit Unit;
+        public LimitList<Resource> Contents;
+        public Action<Resource> OnResourceAdded;
+        
+        public void AddContent(Resource resource)
+        {
+            if (Contents.Add(resource))
+            {
+                OnResourceAdded?.Invoke(resource);
+            }
+        }
+
+        public void RegisterOnResourceAdded(Action<Resource> callback)
+        {
+            OnResourceAdded += callback;
+        }
+    }
+
 }

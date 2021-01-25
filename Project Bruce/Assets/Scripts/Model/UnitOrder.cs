@@ -38,12 +38,12 @@ namespace Bruce
 
             if(rand < chanceToCatch)
             {
-                Debug.Log("Successful Hunt");
+                unit.Inventory.AddContent(new Corpse(animalUnit.Animal));
             }
             else
             {
-                //animalUnit.Flee();
-                //unit.Orders.add(HuntAnimal(unit, animalUnit);
+                animalUnit.EvadedHunt();
+                unit.Orders.Enqueue(HuntAnimal(unit, animalUnit));
             }
         }
     }

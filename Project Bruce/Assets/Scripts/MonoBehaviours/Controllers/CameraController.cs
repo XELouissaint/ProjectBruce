@@ -18,7 +18,7 @@ public class CameraController : MonoBehaviour
         mainCamera = Camera.main;
         swivel = transform.GetChild(0);
         stick = swivel.GetChild(0);
-        CenterCameraOnHex(worldController.world.ActiveCountries.First().Settlements.First().hex);
+        //CenterCameraOnHex(worldController.world.ActiveCountries.First().Settlements.First().hex);
     }
 
     void Update()

@@ -11,156 +11,155 @@ namespace Bruce
         public SettlementJobManager(Settlement settlement)
         {
             Settlement = settlement;
-            JobToPopDictionary = new Dictionary<Job, LimitList<Pop>>();
+            JobDictionary = new Dictionary<Job, LimitList<JobOpening>>();
+        }
 
+        public Dictionary<Job, LimitList<JobOpening>> JobDictionary;
+
+        public Settlement Settlement;
+
+       
+        public void OnJobAdded(Job job)
+        {
+            if (JobDictionary.ContainsKey(job))
+            {
+                return;
+            }
+            JobDictionary[job] = new LimitList<JobOpening>(1);
+
+            PopulateJobOpenings(job);
             
         }
 
-        public Dictionary<Job, LimitList<Pop>> JobToPopDictionary;
-        public Settlement Settlement;
-
-        public bool JobsUnWorked()
-        {
-            bool value = false;
-
-            foreach (Job job in JobToPopDictionary.Keys)
-            {
-                if (JobToPopDictionary[job].Count == 0)
-                {
-                    return true;
-                }
-            }
-
-            return value;
-        }
-
-        public void OnJobAdded(Job job)
-        {
-            if (JobToPopDictionary.ContainsKey(job))
-            {
-                return;
-            }
-            JobToPopDictionary[job] = new LimitList<Pop>(5);
-        }
-
-       
-
-        public void SetJobListLength(Job job, int length)
-        {
-            if(JobToPopDictionary.ContainsKey(job) == false)
-            {
-                return;
-            }
-
-            JobToPopDictionary[job].SetLength(length);
-        }
-
-        public bool AddPopToVisibleJob(Job job, Pop pop)
-        {
-            bool result = false;
-            if (VisibleJobs().Contains(job))
-            {
-                result = JobToPopDictionary[job].Add(pop);
-            }
-            foreach (Job key in JobToPopDictionary.Keys)
-            {
-                if (JobToPopDictionary[key].Contains(pop) && result == false)
-                {
-                    RemovePopFromJob(key, pop);
-                }
-            }
-            return result;
-        }
 
         public void RemovePop(Pop pop)
         {
-            foreach (Job job in JobToPopDictionary.Keys)
+           foreach(Job job in JobDictionary.Keys)
             {
-                if (JobToPopDictionary[job].Contains(pop))
+                foreach(JobOpening opening in JobDictionary[job])
                 {
-                    RemovePopFromJob(job, pop);
+                    if(opening.pop == pop)
+                    {
+                        RemovePopFromJob(opening);
+                    }
                 }
             }
         }
 
-        public bool RemovePopFromJob(Job job, Pop pop)
+        public void RemovePopFromJob(JobOpening opening)
         {
-            return JobToPopDictionary[job].Remove(pop);
+            opening.pop = null;
+            opening.jobMode = JobFactory.NoMode;
         }
 
         public void ExecuteJobs()
         {
-            foreach (Job job in JobToPopDictionary.Keys)
+            foreach (Job job in JobDictionary.Keys)
             {
-                foreach (Pop pop in JobToPopDictionary[job])
+                foreach (JobOpening opening in JobDictionary[job])
                 {
-                    job.Execute(pop, Settlement);
+                    if (opening.pop != null && opening.jobMode != null && opening.jobMode != JobFactory.NoMode)
+                    {
+                        opening.jobMode.Execute(opening.pop, Settlement);
+                    }
                 }
             }
         }
 
-        public bool AssignPopToUnWorkedJob(Pop pop)
+        internal void SetJobListLength(Job job, int v)
         {
-            List<Job> visible = VisibleJobs();
-            foreach (Job job in visible)
+            if(JobDictionary.ContainsKey(job) == false)
             {
-                if (JobToPopDictionary[job].Count == 0)
-                {
-                    bool add = AddPopToVisibleJob(job, pop);
+                return;
+            }
 
-                    return add;
+            JobDictionary[job].SetLength(v);
+            PopulateJobOpenings(job);
+        }
+
+        void PopulateJobOpenings(Job job)
+        {
+            for (int i = 0; i < JobDictionary[job].Length; i++)
+            {
+
+                JobDictionary[job].Add(new JobOpening());
+
+            }
+        }
+
+        internal bool AssignPopToUnWorkedJob(Pop pop)
+        {
+            foreach (Job job in JobDictionary.Keys)
+            {
+                Dictionary<JobMode, int> scores = new Dictionary<JobMode, int>();
+
+                foreach (JobMode mode in job.Modes.Skip(1))
+                {
+                    scores[mode] = 10;
+                    if (mode.Requirements(Settlement))
+                    {
+                        scores[mode] += 0;
+                    }
+                    else
+                    {
+                        scores[mode] -= 1000;
+                    }
+
+                    
                 }
+
+                foreach (JobOpening opening in JobDictionary[job])
+                {
+                    if (opening.jobMode != JobFactory.NoMode && opening.pop != null)
+                    {
+                        scores[opening.jobMode] -= 2;
+                    }
+                }
+
+                JobOpening selectedOpening = null;
+                int count = JobDictionary[job].Where(o => o.pop == null).Count();
+                if (count > 0)
+                {
+                    selectedOpening = JobDictionary[job].Where(o => o.pop == null).First();
+                }
+                if (selectedOpening == null)
+                {
+                    return false;
+                }
+
+                JobMode winningMode = null;
+                int maxScore = 0;
+                foreach (JobMode mode in scores.Keys)
+                {
+                    if(scores[mode] < 0)
+                    {
+                        continue;
+                    }
+
+                    if(scores[mode] > maxScore)
+                    {
+                        maxScore = scores[mode];
+                        winningMode = mode;
+                    }
+                }
+                selectedOpening.jobMode = winningMode;
+                selectedOpening.pop = pop;
+
+                return true;
             }
 
             return false;
         }
-        public List<Job> VisibleJobs()
+    }
+
+    public class JobOpening
+    {
+        public JobOpening()
         {
-            List<Job> visible = new List<Job>();
-
-            foreach (Job job in JobToPopDictionary.Keys)
-            {
-                if (job.Requirements(Settlement))
-                {
-
-                    visible.Add(job);
-                }
-                else
-                {
-
-                }
-            }
-
-            return visible;
+            jobMode = JobFactory.NoMode;
         }
 
-        public void OnPopUnemployed(Pop pop)
-        {
-            
-            for (int i = 0; i < 100; i++)
-            {
-                if (AssignPopToUnWorkedJob(pop))
-                {
-                    return;
-                }
-            }
-
-            var jobDict = JobToPopDictionary;
-
-            for (int i = 0; i < 100; i++)
-            {
-                int rand = World.RNG.Next(0, jobDict.Keys.Count);
-
-                Job randJob = jobDict.ElementAt(rand).Key;
-
-
-                if (AddPopToVisibleJob(randJob, pop))
-                {
-                    return;
-                }
-
-            }
-
-        }
+        public Pop pop;
+        public JobMode jobMode;
     }
 }

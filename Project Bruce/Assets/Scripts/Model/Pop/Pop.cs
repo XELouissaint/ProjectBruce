@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,13 +7,16 @@ namespace Bruce
 {
 
     public enum PopGender { Male, Female }
-    public class Pop
+    public class Pop : IStorySubjectable
     {
         public Pop(int age)
         {
             ID = GameIndex.PopIDCounter++;
             this.age = age;
             LifeCycle = new PopLifeCycle(this);
+            Stats = new PopStats(this);
+            Modifiable = new PopModifiable();
+            Relations = new PopRelations(this);
         }
 
         public Pop(PopGender gender, string name, int age) : this(age)
@@ -23,13 +27,22 @@ namespace Bruce
 
         int ID;
         public PopGender gender;
+        public Country Nationality;
+        public PopModifiable Modifiable;
+
         public PopLifeCycle LifeCycle;
-        public string name;
+        public PopStats Stats;
+        public PopRelations Relations;
+        public string name { get; set; }
         public double age;
 
         public void OnDay()
         {
             LifeCycle.OnDay();
+        }
+
+        public void RecieveMoral(int moral)
+        {
         }
     }
     public enum PopLifeStage { Baby, Child, Teen, YoungAdult, Adult, Zombie }
@@ -83,12 +96,12 @@ namespace Bruce
 
     public class PopStats
     {
+
         public PopStats(Pop pop)
         {
             Pop = pop;
         }
         public Pop Pop;
-
         public Stat Creativity;
         public Stat Wit;
         public Stat Logic;
@@ -100,5 +113,27 @@ namespace Bruce
         public Stat Charm;
         public Stat Looks;
         public Stat Persuasion;
+
+       
+
+        public double baseProwessEXPGain;
     }
+
+    public class PopModifiable
+    {
+        public List<PopModifier> Modifiers;
+
+        public float FoodNeed;
+
+        public float CreativityEXPGain;
+        public float WitEXPGain;
+        public float LogicEXPGain;
+        public float FitnessEXPGain;
+        public float DexterityEXPGain;
+        public float ProwessEXPGain;
+        public float CharmEXPGain;
+        public float LooksEXPGain;
+        public float PersuasionEXPGain;
+    }
+   
 }

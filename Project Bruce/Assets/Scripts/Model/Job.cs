@@ -6,19 +6,35 @@ using UnityEngine;
 
 namespace Bruce
 {
-    public interface IProcessable
-    {
-    }
     public class Job
     {
 
-        public Job(string name, Action<Pop, Settlement> onExecute)
+        public Job(string name)
         {
+            this.name = name;
+            this.Modes = new List<JobMode>();
+            this.Modes.Add(JobFactory.NoMode);
+        }
+
+        public string name;
+
+        public List<JobMode> Modes;
+
+    }
+
+    public class JobMode 
+    {
+        public JobMode(string name, Action<Pop,Settlement> onExecute)
+        {
+
             this.name = name;
             OnExecute += onExecute;
             LifeStages = new List<PopLifeStage>();
             Requirements = (settlement) => NoRequirements;
         }
+
+        public Job Job;
+
 
         public List<PopLifeStage> LifeStages;
         public string name;
@@ -29,7 +45,7 @@ namespace Bruce
 
         public virtual void Execute(Pop pop, Settlement settlement)
         {
-            OnExecute(pop,settlement);
+            OnExecute(pop, settlement);
         }
 
     }

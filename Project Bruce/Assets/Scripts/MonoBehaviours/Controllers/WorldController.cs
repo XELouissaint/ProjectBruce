@@ -16,9 +16,9 @@ public class WorldController : MonoBehaviour
             Instance = this;
         }
     }
+    
     void Start()
     {
-
         currentMap = new Map();
         world = new World(currentMap);
         playerCountry = world.Countries.First();
@@ -29,8 +29,6 @@ public class WorldController : MonoBehaviour
 
         playerCountry.RefreshPopulation();
 
-        Action populationSetter = () => { UI.SelectedPopulation = playerCountry.Population; };
-        UIController.Instance.UIPopulation.Initialize(populationSetter);
 
 
         Action settlementSetter = () => { UI.SelectedSettlement = playerCountry.Settlements.First(); };
@@ -40,6 +38,11 @@ public class WorldController : MonoBehaviour
         world.SpawnStartAnimals();
 
         Debug.Log(string.Format("{0},{1}", playerCountry.Settlements.First().hex.gridX, playerCountry.Settlements.First().hex.gridZ));
+
+        if (world.Nature.UnitManager.Units.First() is AnimalUnit animalUnit)
+        {
+            animalUnit.EvadedHunt();
+        }
     }
 
     public void CreateUnit()
@@ -53,21 +56,39 @@ public class WorldController : MonoBehaviour
 
     private void Update()
     {
+        UIController.RefreshUI(UIController.Instance.UIGameTime);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            dummyTimer = 0;
+        }
+        if (dummyTimer <= 0)
         {
 
             world.Tick();
 
             Action settlementSetter = () => { UI.SelectedSettlement = playerCountry.Settlements.First(); };
             UIController.Instance.UISettlement.Initialize(settlementSetter);
+            dummyTimer = .2f;
+        }
+        
+        //dummyTimer -= Time.deltaTime;
 
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            Settlement first = world.Countries.First().Settlements.First();
+
+            first.BeginConstructBuilding(BuildingFactory.NewFirePit);
+
+            Debug.Log(world.CalendarSystem.DateString() + ":" + world.CalendarSystem.GetFutureDateString(365));
         }
     }
 
     public Map currentMap;
     public Country playerCountry;
     public Button CreateUnitButton;
+
+    float dummyTimer = .2f;
 
     public MapController mapController;
     public UnitController unitController;

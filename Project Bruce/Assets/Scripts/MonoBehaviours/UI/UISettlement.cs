@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,17 +14,31 @@ public class UISettlement : UI
         {
             return;
         }
+
+        UIController.DisplayUI(UICenterLeft,null);
         var resourceDictionary = SelectedSettlement.Stockpile.Resources;
         int housing = 0;
 
-        foreach (Building building in SelectedSettlement.Buildings)
+        foreach (Hex hex in SelectedSettlement.Territory)
         {
-            MenuCountObject buildingMenuObject = Instantiate(MenuObjectPrefab, BuildingHolder);
-            buildingMenuObject.ObjectText.text = string.Format(building.name);
+            foreach (Building building in hex.BuildingManager.ConstructedBuildings)
+            {
+                MenuCountObject buildingMenuObject = Instantiate(MenuObjectPrefab, BuildingHolder);
+                buildingMenuObject.ObjectText.text = string.Format(building.name);
+                buildingMenuObject.CountText.text = string.Empty;
+                Prefabs.Add(buildingMenuObject.gameObject);
 
-            Prefabs.Add(buildingMenuObject.gameObject);
+                housing += building.Housing;
 
-            housing += building.Housing;
+            }
+
+            foreach (BuildingPrototype prototype in World.Instance.BuildingManager.UnderConstructionBuildings.Where(p => p.hex == hex))
+            {
+                MenuCountObject buildingMenuObject = Instantiate(MenuObjectPrefab, BuildingHolder);
+                buildingMenuObject.ObjectText.text = string.Format(prototype.building.name);
+                buildingMenuObject.CountText.text = prototype.timer.ToString();
+                Prefabs.Add(buildingMenuObject.gameObject);
+            }
         }
 
         MenuCountObject housingMenuObject = Instantiate(MenuObjectPrefab, ResourceHolder);
@@ -40,12 +55,19 @@ public class UISettlement : UI
             Prefabs.Add(resourceMenuObject.gameObject);
         }
 
-        Action setterCallback = () => { UIJobsList.JobDictionary = SelectedSettlement.JobManager.JobToPopDictionary; };
+        Action setterCallback = () => {  };
         
         ExpandTerritoryButton.onClick.AddListener(() => { ExpandTerritoryButtonOnClick(); });
-        OpenJobsListButton.onClick.AddListener(() => { UIController.Instance.DisplayUI(UIJobsList, setterCallback); });
+        OpenJobsListButton.onClick.AddListener(() => { UIController.DisplayUI(UIJobsList, setterCallback); });
         
     }
+
+    public override void Close()
+    {
+        UIController.HideUI(UICenterLeft);
+    }
+
+    public UICenterLeft UICenterLeft;
     public UIJobsList UIJobsList;
 
     public RectTransform ResourceHolder;

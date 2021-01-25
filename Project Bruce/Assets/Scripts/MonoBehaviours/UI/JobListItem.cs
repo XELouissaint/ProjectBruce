@@ -8,4 +8,5 @@ public class JobListItem : MonoBehaviour
     public Text JobNameText;
     public Text JobNumberText;
     public Button OpenPopMenuButton;
+    public Button OpenModeMenuButton;
 }

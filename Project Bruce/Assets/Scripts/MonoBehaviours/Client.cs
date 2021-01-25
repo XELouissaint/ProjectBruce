@@ -5,6 +5,7 @@ using Bruce;
 public class Client : MonoBehaviour
 {
     public static Settlement SelectedSettlement;
+    public static Hex SelectedHex;
     public static Unit SelectedUnit;
 
     public static Population SelectedPopulation;

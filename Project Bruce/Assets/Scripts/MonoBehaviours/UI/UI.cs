@@ -14,6 +14,16 @@ public class UI : Client
         DestroyPrefabs();
     }
 
+    public virtual void OnControllerAwake()
+    {
+
+    }
+
+    public virtual void Close()
+    {
+
+    }
+
     public void DestroyPrefabs()
     {
         for (int i = 0; i < Prefabs.Count; i++)

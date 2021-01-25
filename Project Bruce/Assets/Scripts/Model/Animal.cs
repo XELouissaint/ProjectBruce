@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Bruce
 {
     public enum AnimalDiet { Herbivore, Omnivore, Carnivore }
-    public class Animal
+    public class Animal : IStorySubjectable
     {
         public Animal(AnimalBreed breed)
         {
@@ -13,7 +13,7 @@ namespace Bruce
         }
 
         public AnimalBreed Breed;
-        public string name;
+        public string name { get; set; }
     }
 
     public class AnimalBreed
@@ -30,7 +30,7 @@ namespace Bruce
     public static class AnimalFactory
     {
         public static AnimalBreed SheepBreed;
-
+        public static AnimalBreed DebugBreed;
         static AnimalFactory()
         {
             SheepBreed = new AnimalBreed()
@@ -39,6 +39,11 @@ namespace Bruce
                 huntEvasion = .66f,
                 huntRetaliation = 0f,
                 animalDiet = AnimalDiet.Herbivore,
+            };
+            DebugBreed = new AnimalBreed()
+            {
+                name = "monster",
+                animalDiet = AnimalDiet.Omnivore
             };
         }
     }

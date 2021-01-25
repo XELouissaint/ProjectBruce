@@ -17,10 +17,12 @@ namespace Bruce
         public static string AppleTree = "apple tree";
         public static Cultivar None = new Cultivar("none", 0f);
         public static Cultivar Fruit = new Cultivar("fruit", .1f);
+        public static Cultivar PlantFibers = new Cultivar("plant fibers", 0f);
         public static Wood Wood = new Wood("wood", 1f);
         public static Water Water = new Water("water");
         public static Stone Stone = new Stone("stone");
         public static Clay Clay = new Clay("clay");
+        public static Clay Mud = new Clay("mud");
 
         public static int WorkingAge = 8;
 
@@ -97,18 +99,19 @@ namespace Bruce
         public string name { get; set; }
     }
 
-    public class Strength : Stat
+    public class Corpse : Resource
     {
-        public Strength(string name)
+        public Corpse(Animal animal)
         {
             this.name = name;
+            this.animal = animal;
         }
-
         public string name { get; set; }
+        public Animal animal;
     }
 
     #region LimitList
-    public class LimitList<T> : IEnumerable<T> where T : Pop
+    public class LimitList<T> : IEnumerable<T>
     {
         public LimitList(int length)
         {
@@ -157,20 +160,20 @@ namespace Bruce
                 return list.Count;
             }
         }
-        public bool Add(T pop)
+        public bool Add(T item)
         {
             if (list.Count >= length)
             {
                 return false;
             }
 
-            list.Add(pop);
+            list.Add(item);
             return true;
         }
 
-        public bool Remove(T pop)
+        public bool Remove(T item)
         {
-            return list.Remove(pop);
+            return list.Remove(item);
         }
 
         public IEnumerator<T> GetEnumerator()
